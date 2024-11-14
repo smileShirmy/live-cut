@@ -1,0 +1,69 @@
+@mixin theme(
+  $app-bg-color,
+  $app-bg-color-light,
+  $app-bg-color-lighter,
+  $app-bg-color-extra-lighter,
+  $app-bg-color-dark,
+  $app-bg-color-darker,
+  $app-bg-color-blank,
+  $app-text-color-primary,
+  $app-text-color-regular
+) {
+  --app-bg-color: #{$app-bg-color};
+  --app-bg-color-light: #{$app-bg-color-light};
+  --app-bg-color-lighter: #{$app-bg-color-lighter};
+  --app-bg-color-dark: #{$app-bg-color-dark};
+  --app-bg-color-darker: #{$app-bg-color-darker};
+  --app-bg-color-blank: #{$app-bg-color-blank};
+  --app-bg-color-extra-lighter: #{$app-bg-color-extra-lighter};
+
+  --app-text-color-primary: #{$app-text-color-primary};
+  --app-text-color-regular: #{$app-text-color-regular};
+
+  --app-color-white: #fff;
+  --app-color-black: #000;
+}
+
+:root {
+  // Typography
+  --app-font-size-extra-large: 18px;
+  --app-font-size-large: 16px;
+  --app-font-size-medium: 14px;
+  --app-font-size-base: 13px;
+  --app-font-size-small: 12px;
+  --app-font-size-extra-small: 11px;
+
+  --app-font-size-minimum: 9px;
+
+  --app-color-theme: #ff73b3;
+
+  --app-text-color-dark: #666;
+  --app-bg-color-audio-waveform: #223452;
+  --icon-color: #9fa1b2;
+  --icon-color-bg: #2c2d3e;
+
+  @include theme(
+    $app-bg-color: #151620,
+    $app-bg-color-light: #222331,
+    $app-bg-color-lighter: #383846,
+    $app-bg-color-extra-lighter: #4a4b61,
+    $app-bg-color-dark: #11121a,
+    $app-bg-color-darker: #070709,
+    $app-bg-color-blank: #000,
+
+    $app-text-color-primary: #a8abb2,
+    $app-text-color-regular: #c0c4cc
+  );
+}
+
+// .dark:root {
+//   @include theme(
+//     TODO
+//   )
+// }
+
+// @media (prefers-color-scheme: dark) {
+//   :root {
+//
+//   }
+// }
