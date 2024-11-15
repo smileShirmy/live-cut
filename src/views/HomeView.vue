@@ -8,8 +8,9 @@ import AttributeContainer from '@/components/container/attribute/AttributeContai
 
 <template>
   <HeaderContainer />
-  <main class="home-main">
+  <AppPane layout="vertical" class="home-main">
     <ResourceContainer />
+    <AppPaneDivider />
     <div class="editor-wrapper">
       <div class="player-workplace">
         <PlayerContainer />
@@ -17,7 +18,7 @@ import AttributeContainer from '@/components/container/attribute/AttributeContai
       </div>
       <TrackContainer />
     </div>
-  </main>
+  </AppPane>
 </template>
 
 <style lang="scss" scoped>
