@@ -1,22 +1,34 @@
 <script setup lang="ts">
+import { isBoolean } from '@/services/helpers/general'
 import {
   Left as IconLeft,
   Up as IconUp,
   Right as IconRight,
   Down as IconDown,
 } from '@icon-park/vue-next'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+
+const TRANSITION_DURATION = 300
 
 defineOptions({
   name: 'AppPaneDivider',
 })
 
-// v-model 传 is-collapse 并且放在 store 中
+const props = withDefaults(
+  defineProps<{
+    placement?: 'up' | 'right' | 'down' | 'left'
+    collapseSize?: string
+    modelValue?: boolean
+  }>(),
+  {
+    modelValue: true,
+  },
+)
 
-const props = defineProps<{
-  placement?: 'up' | 'right' | 'down' | 'left'
-  collapseSize?: string
-}>()
+const emit = defineEmits({
+  ['update:modelValue']: (val) => isBoolean(val),
+  change: (val: boolean, oldVal: boolean) => isBoolean(val) && isBoolean(oldVal) && val !== oldVal,
+})
 
 const appPaneDividerRef = ref<HTMLDivElement>()
 
@@ -31,7 +43,11 @@ const iconComponent = computed(() => {
     : null
 })
 
-function fold() {
+const isExpand = computed(() => props.modelValue)
+
+watch(isExpand, toggle)
+
+function toggle(isExpand: boolean) {
   if (!appPaneDividerRef.value) {
     return
   }
@@ -41,20 +57,55 @@ function fold() {
     return
   }
 
-  if (['left', 'right'].some((v) => v === props.placement)) {
-    pane.style.minWidth = 'auto'
-    pane.style.width = props.collapseSize ?? '0'
+  pane.style.transitionProperty = 'all'
+  pane.style.transitionDuration = '0.3s'
+  pane.style.transitionTimingFunction = 'ease-in-out'
+
+  const isVertical = ['left', 'right'].some((v) => v === props.placement)
+
+  if (isVertical) {
+    if (isExpand) {
+      pane.style.width = pane.dataset.width ?? 'auto'
+      setTimeout(() => {
+        pane.style.minWidth = pane.dataset.beforeMinWidth ?? 'auto'
+      }, TRANSITION_DURATION)
+    } else {
+      // 合起来之前记录一下 minWidth 和 width
+      pane.dataset.beforeMinWidth = pane.style.minWidth
+      pane.dataset.width = pane.style.width
+
+      // TODO: 处理 right-arrow 和 bottom-arrow
+      pane.style.width = props.collapseSize ?? '0'
+      pane.style.minWidth = 'auto'
+    }
   } else {
-    pane.style.minHeight = 'auto'
-    pane.style.height = props.collapseSize ?? '0'
+    if (isExpand) {
+      pane.style.height = pane.dataset.height ?? 'auto'
+      setTimeout(() => {
+        pane.style.minHeight = pane.dataset.beforeMinHeight ?? 'auto'
+      }, TRANSITION_DURATION)
+    } else {
+      // 合起来之前记录一下 minWidth 和 width
+      pane.dataset.beforeMinHeight = pane.style.minHeight
+      pane.dataset.height = pane.style.height
+
+      pane.style.minHeight = 'auto'
+      pane.style.height = props.collapseSize ?? '0'
+    }
   }
+
+  // TODO: cancel transition
+}
+
+function fold() {
+  emit('update:modelValue', !props.modelValue)
 }
 </script>
 
 <template>
-  <div class="app-pane-divider" ref="appPaneDividerRef">
+  <div v-show="props.modelValue" class="app-pane-divider" ref="appPaneDividerRef">
     <div
-      v-if="placement"
+      v-if="placement && props.modelValue"
       class="app-pane-divider-fold"
       :data-collapse-size="collapseSize"
       :class="`is-${placement}`"

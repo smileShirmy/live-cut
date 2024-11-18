@@ -5,19 +5,38 @@ import PlayerContainer from '@/components/container/player/PlayerContainer.vue'
 import ResourceContainer from '@/components/container/resource/ResourceContainer.vue'
 import AttributeContainer from '@/components/container/attribute/AttributeContainer.vue'
 import { useAppStore } from '@/store/app'
+import { computed } from 'vue'
 
 const appStore = useAppStore()
+
+const resourceVisible = computed({
+  get() {
+    return appStore.resourceVisible
+  },
+  set(isExpand: boolean) {
+    appStore.toggleResourceVisible(isExpand)
+  },
+})
+
+const attributeVisible = computed({
+  get() {
+    return appStore.attributeVisible
+  },
+  set(isExpand: boolean) {
+    appStore.toggleAttributeVisible(isExpand)
+  },
+})
 </script>
 
 <template>
   <HeaderContainer />
   <AppPane layout="vertical" class="home-main">
     <ResourceContainer />
-    <AppPaneDivider v-if="appStore.resourceVisible" placement="left" collapse-size="80px" />
+    <AppPaneDivider v-model="resourceVisible" placement="left" collapse-size="80px" />
     <AppPane :style="{ minWidth: '820px' }" class="editor-wrapper">
       <AppPane layout="vertical" :style="{ minHeight: '240px' }" class="player-workplace">
         <PlayerContainer />
-        <AppPaneDivider />
+        <AppPaneDivider v-model="attributeVisible" placement="right" collapse-size="80px" />
         <AttributeContainer />
       </AppPane>
       <AppPaneDivider />
