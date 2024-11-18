@@ -4,13 +4,16 @@ import TrackContainer from '@/components/container/track/TrackContainer.vue'
 import PlayerContainer from '@/components/container/player/PlayerContainer.vue'
 import ResourceContainer from '@/components/container/resource/ResourceContainer.vue'
 import AttributeContainer from '@/components/container/attribute/AttributeContainer.vue'
+import { useAppStore } from '@/store/app'
+
+const appStore = useAppStore()
 </script>
 
 <template>
   <HeaderContainer />
   <AppPane layout="vertical" class="home-main">
     <ResourceContainer />
-    <AppPaneDivider />
+    <AppPaneDivider v-if="appStore.resourceVisible" placement="left" collapse-size="80px" />
     <AppPane :style="{ minWidth: '820px' }" class="editor-wrapper">
       <AppPane layout="vertical" :style="{ minHeight: '240px' }" class="player-workplace">
         <PlayerContainer />
@@ -29,9 +32,9 @@ import AttributeContainer from '@/components/container/attribute/AttributeContai
   height: calc(100% - 48px);
 
   .editor-wrapper {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    width: 75%;
     overflow: hidden;
 
     .player-workplace {

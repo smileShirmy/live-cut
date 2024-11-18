@@ -51,7 +51,7 @@ function onMousedown(event: MouseEvent | TouchEvent) {
     return
   }
 
-  const pane = target.previousElementSibling
+  const pane = divider.previousElementSibling
   if (!(pane instanceof HTMLElement)) {
     return
   }
@@ -70,19 +70,17 @@ function onMousedown(event: MouseEvent | TouchEvent) {
     if (props.layout === 'vertical') {
       const containerWidth = containerRef.value.clientWidth
       const paneWidth = initialSize + offset
+      const width = usePercentage ? `${(paneWidth / containerWidth) * 100}%` : `${paneWidth}px`
 
-      return (pane.style.width = usePercentage
-        ? `${(paneWidth / containerWidth) * 100}%`
-        : `${paneWidth}px`)
+      pane.dataset.width = pane.style.width = width
     }
 
     if (props.layout === 'horizontal') {
       const containerHeight = target.clientHeight
       const paneHeight = initialSize + offset
+      const height = usePercentage ? `${(paneHeight / containerHeight) * 100}%` : `${paneHeight}px`
 
-      return (pane.style.height = usePercentage
-        ? `${(paneHeight / containerHeight) * 100}%`
-        : `${paneHeight}px`)
+      pane.dataset.height = pane.style.height = height
     }
   }
 
