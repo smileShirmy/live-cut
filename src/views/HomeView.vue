@@ -31,7 +31,7 @@ import AttributeContainer from '@/components/container/attribute/AttributeContai
   .editor-wrapper {
     display: flex;
     flex-direction: column;
-    width: calc(75%);
+    width: 75%;
     overflow: hidden;
 
     .player-workplace {

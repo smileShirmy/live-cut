@@ -39,6 +39,8 @@ function getPageXY(event: MouseEvent | TouchEvent) {
 }
 
 function onMousedown(event: MouseEvent | TouchEvent) {
+  event.preventDefault()
+
   const { target } = event
   if (!(target instanceof HTMLElement)) {
     return
@@ -70,8 +72,8 @@ function onMousedown(event: MouseEvent | TouchEvent) {
       const paneWidth = initialSize + offset
 
       return (pane.style.width = usePercentage
-        ? (paneWidth / containerWidth) * 100 + '%'
-        : paneWidth + 'px')
+        ? `${(paneWidth / containerWidth) * 100}%`
+        : `${paneWidth}px`)
     }
 
     if (props.layout === 'horizontal') {
@@ -79,8 +81,8 @@ function onMousedown(event: MouseEvent | TouchEvent) {
       const paneHeight = initialSize + offset
 
       return (pane.style.height = usePercentage
-        ? (paneHeight / containerHeight) * 100 + '%'
-        : paneHeight + 'px')
+        ? `${(paneHeight / containerHeight) * 100}%`
+        : `${paneHeight}px`)
     }
   }
 
@@ -102,11 +104,17 @@ function onMousedown(event: MouseEvent | TouchEvent) {
     isResizing.value = false
 
     window.removeEventListener('mousemove', onMouseMove)
+    window.removeEventListener('touchmove', onMouseMove)
     window.removeEventListener('mouseup', onMouseUp)
+    window.removeEventListener('touchend', onMouseUp)
+    window.removeEventListener('contextmenu', onMouseUp)
   }
 
   window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('touchmove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
+  window.addEventListener('touchend', onMouseUp)
+  window.addEventListener('contextmenu', onMouseUp)
 }
 </script>
 
@@ -138,13 +146,11 @@ function onMousedown(event: MouseEvent | TouchEvent) {
 
 .app-pane > div {
   position: relative;
-  z-index: 1;
 }
 
 .app-pane-divider {
   display: block;
   position: relative;
-  z-index: 2;
 }
 
 .layout-h > .app-pane-divider {
