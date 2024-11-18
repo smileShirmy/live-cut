@@ -11,13 +11,15 @@ import AttributeContainer from '@/components/container/attribute/AttributeContai
   <AppPane layout="vertical" class="home-main">
     <ResourceContainer />
     <AppPaneDivider />
-    <div class="editor-wrapper">
-      <div class="player-workplace">
+    <AppPane :style="{ minWidth: '820px' }" class="editor-wrapper">
+      <AppPane layout="vertical" :style="{ minHeight: '240px' }" class="player-workplace">
         <PlayerContainer />
+        <AppPaneDivider />
         <AttributeContainer />
-      </div>
-      <TrackContainer />
-    </div>
+      </AppPane>
+      <AppPaneDivider />
+      <TrackContainer class="track-container" />
+    </AppPane>
   </AppPane>
 </template>
 
@@ -33,10 +35,13 @@ import AttributeContainer from '@/components/container/attribute/AttributeContai
     overflow: hidden;
 
     .player-workplace {
-      flex: 1;
       display: flex;
       justify-content: flex-start;
       height: 45%;
+    }
+
+    .track-container {
+      flex: 1;
     }
   }
 }

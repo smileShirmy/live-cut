@@ -20,6 +20,7 @@ const classList = computed(() => ['app-pane', `layout-${props.layout.slice(0, 1)
 
 const containerStyle: ComputedRef<CSSProperties> = computed(() => ({
   cursor: isResizing.value ? (props.layout === 'vertical' ? 'col-resize' : 'row-resize') : '',
+  userSelect: isResizing.value ? 'none' : undefined,
 }))
 
 const containerRef = ref<HTMLDivElement>()
@@ -39,66 +40,73 @@ function getPageXY(event: MouseEvent | TouchEvent) {
 
 function onMousedown(event: MouseEvent | TouchEvent) {
   const { target } = event
-  if (target instanceof HTMLDivElement && target.closest('.app-pane-divider')) {
-    const pane = target.previousElementSibling
-    const { pageX: initialPageX, pageY: initialPageY } = getPageXY(event)
+  if (!(target instanceof HTMLElement)) {
+    return
+  }
 
-    if (!(pane instanceof HTMLDivElement)) {
+  const divider = target.closest('.app-pane-divider')
+  if (!divider) {
+    return
+  }
+
+  const pane = target.previousElementSibling
+  if (!(pane instanceof HTMLElement)) {
+    return
+  }
+
+  const { pageX: initialPageX, pageY: initialPageY } = getPageXY(event)
+
+  const { offsetWidth, offsetHeight } = pane
+  const usePercentage = pane.style.width.match('%')
+  isResizing.value = true
+
+  const resize = (initialSize: number | null = null, offset: number = 0) => {
+    if (!(pane instanceof HTMLElement) || initialSize === null || !containerRef.value) {
+      return 'auto'
+    }
+
+    if (props.layout === 'vertical') {
+      const containerWidth = containerRef.value.clientWidth
+      const paneWidth = initialSize + offset
+
+      return (pane.style.width = usePercentage
+        ? (paneWidth / containerWidth) * 100 + '%'
+        : paneWidth + 'px')
+    }
+
+    if (props.layout === 'horizontal') {
+      const containerHeight = target.clientHeight
+      const paneHeight = initialSize + offset
+
+      return (pane.style.height = usePercentage
+        ? (paneHeight / containerHeight) * 100 + '%'
+        : paneHeight + 'px')
+    }
+  }
+
+  const onMouseMove = (event: MouseEvent | TouchEvent) => {
+    const { pageX, pageY } = getPageXY(event)
+
+    if (props.layout === 'vertical') {
+      resize(offsetWidth, pageX - initialPageX)
+    } else {
+      resize(offsetHeight, pageY - initialPageY)
+    }
+  }
+
+  const onMouseUp = function () {
+    if (!(pane instanceof HTMLElement)) {
       return
     }
 
-    const { offsetWidth, offsetHeight } = pane
-    const usePercentage = pane.style.width.match('%')
-    isResizing.value = true
+    isResizing.value = false
 
-    const resize = (initialSize: number | null = null, offset: number = 0) => {
-      if (!(pane instanceof HTMLDivElement) || initialSize === null || !containerRef.value) {
-        return 'auto'
-      }
-
-      if (props.layout === 'vertical') {
-        const containerWidth = containerRef.value.clientWidth
-        const paneWidth = initialSize + offset
-
-        return (pane.style.width = usePercentage
-          ? (paneWidth / containerWidth) * 100 + '%'
-          : paneWidth + 'px')
-      }
-
-      if (props.layout === 'horizontal') {
-        const containerHeight = target.clientHeight
-        const paneHeight = initialSize + offset
-
-        return (pane.style.height = usePercentage
-          ? (paneHeight / containerHeight) * 100 + '%'
-          : paneHeight + 'px')
-      }
-    }
-
-    const onMouseMove = (event: MouseEvent | TouchEvent) => {
-      const { pageX, pageY } = getPageXY(event)
-
-      if (props.layout === 'vertical') {
-        resize(offsetWidth, pageX - initialPageX)
-      } else {
-        resize(offsetHeight, pageY - initialPageY)
-      }
-    }
-
-    const onMouseUp = function () {
-      if (!(pane instanceof HTMLDivElement)) {
-        return
-      }
-
-      isResizing.value = false
-
-      removeEventListener('mousemove', onMouseMove)
-      removeEventListener('mouseup', onMouseUp)
-    }
-
-    addEventListener('mousemove', onMouseMove)
-    addEventListener('mouseup', onMouseUp)
+    window.removeEventListener('mousemove', onMouseMove)
+    window.removeEventListener('mouseup', onMouseUp)
   }
+
+  window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('mouseup', onMouseUp)
 }
 </script>
 
@@ -107,8 +115,8 @@ function onMousedown(event: MouseEvent | TouchEvent) {
     :class="classList"
     :style="containerStyle"
     ref="containerRef"
-    @mousedown="onMousedown"
-    @touchstart="onMousedown"
+    @mousedown.stop="onMousedown"
+    @touchstart.stop="onMousedown"
   >
     <slot></slot>
   </section>
