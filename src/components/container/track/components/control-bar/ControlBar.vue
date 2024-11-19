@@ -32,12 +32,12 @@ function redo() {
 <template>
   <div class="control-bar">
     <section class="control-bar-child">
-      <AppPopper content="撤销" hover>
+      <AppPopper class="popper-item" content="撤销" hover>
         <div class="control-item" :class="{ disabled: true }" @click="undo">
           <IconUndo class="icon" />
         </div>
       </AppPopper>
-      <AppPopper content="重做" hover>
+      <AppPopper class="popper-item" content="重做" hover>
         <div
           class="control-item"
           :class="{
@@ -48,12 +48,12 @@ function redo() {
           <IconRedo class="icon" />
         </div>
       </AppPopper>
-      <AppPopper content="删除" hover>
+      <AppPopper class="popper-item" content="删除" hover>
         <div class="control-item" :class="{ disabled: false }" @click="removeSelected">
           <IconDelete class="icon" />
         </div>
       </AppPopper>
-      <AppPopper content="分割" hover>
+      <AppPopper class="popper-item" content="分割" hover>
         <div class="control-item" :class="{ disabled: true }" @click="split">
           <IconCuttingOne class="icon" />
         </div>
@@ -61,17 +61,17 @@ function redo() {
     </section>
 
     <section class="control-bar-child">
-      <AppPopper hover :content="true ? '关闭自动磁吸' : '打开自动磁吸'">
+      <AppPopper class="popper-item" hover :content="true ? '关闭自动磁吸' : '打开自动磁吸'">
         <div class="track-control-item" :class="{ enable: true }">
           <IconAddSubset theme="filled" class="track-icon" />
         </div>
       </AppPopper>
-      <AppPopper hover :content="true ? '关闭自动吸附' : '打开自动吸附'">
+      <AppPopper class="popper-item" hover :content="true ? '关闭自动吸附' : '打开自动吸附'">
         <div class="track-control-item" :class="{ enable: true }">
           <IconBringToFront theme="filled" class="track-icon" />
         </div>
       </AppPopper>
-      <AppPopper hover :content="true ? '关闭预览线' : '打开预览线'">
+      <AppPopper class="popper-item" hover :content="true ? '关闭预览线' : '打开预览线'">
         <div class="track-control-item" :class="{ enable: true }">
           <IconAlignRight theme="filled" class="track-icon" />
         </div>
@@ -104,11 +104,14 @@ function redo() {
     align-items: center;
   }
 
+  .popper-item {
+    margin: 0 6px;
+  }
+
   .control-item {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 6px;
     width: 24px;
     height: 24px;
     border-radius: 4px;
@@ -136,7 +139,6 @@ function redo() {
     width: 24px;
     height: 24px;
     border-radius: 4px;
-    margin: 0 6px;
     cursor: pointer;
 
     &.enable {

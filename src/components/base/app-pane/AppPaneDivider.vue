@@ -85,7 +85,7 @@ function toggle(isExpand: boolean) {
 
   setTimeout(() => {
     prevPane.style.transition = ''
-  }, 300)
+  }, TRANSITION_DURATION + 50)
 }
 
 function getDirectionNames(direction: 'width' | 'height'): {

@@ -117,7 +117,7 @@ function selectMenu(componentName: ResourceComponentName) {
 
   .collapse-enter-from,
   .collapse-leave-to {
-    opacity: 0;
+    opacity: 0.5;
   }
 }
 </style>
