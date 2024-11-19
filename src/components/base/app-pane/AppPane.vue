@@ -42,7 +42,12 @@ function onMousedown(event: MouseEvent | TouchEvent) {
   event.preventDefault()
 
   const { target } = event
-  if (!(target instanceof HTMLElement)) {
+  if (!(target instanceof HTMLElement || target instanceof SVGSVGElement)) {
+    return
+  }
+
+  const isFoldBtn = target.closest('.app-pane-divider-fold')
+  if (isFoldBtn) {
     return
   }
 

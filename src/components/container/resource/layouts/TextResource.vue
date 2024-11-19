@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DEFAULT_TEXT, DEFAULT_TEXT_FRAME_COUNT } from '@/config'
 import { ResourceType, type TextResource } from '@/types'
+import TextItem from '../components/TextItem.vue'
 import { ref } from 'vue'
 
 const defaultTextResource: TextResource = {

@@ -4,6 +4,7 @@
 
 <style lang="scss" scoped>
 .player-container {
+  margin-right: 1px;
   width: 67%;
   background-color: var(--app-bg-color-dark);
 }

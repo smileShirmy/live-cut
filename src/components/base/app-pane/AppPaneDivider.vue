@@ -17,10 +17,11 @@ defineOptions({
 const props = withDefaults(
   defineProps<{
     placement?: 'up' | 'right' | 'down' | 'left'
-    collapseSize?: string
+    collapseSize?: number
     modelValue?: boolean
   }>(),
   {
+    collapseSize: 0,
     modelValue: true,
   },
 )
@@ -52,49 +53,89 @@ function toggle(isExpand: boolean) {
     return
   }
 
-  const pane = appPaneDividerRef.value.previousElementSibling
-  if (!(pane instanceof HTMLElement)) {
+  const prevPane = appPaneDividerRef.value.previousElementSibling
+  const nextPane = appPaneDividerRef.value.nextElementSibling
+  if (!(prevPane instanceof HTMLElement && nextPane instanceof HTMLElement)) {
     return
   }
 
-  pane.style.transitionProperty = 'all'
-  pane.style.transitionDuration = '0.3s'
-  pane.style.transitionTimingFunction = 'ease-in-out'
+  prevPane.style.transition = '0.3s ease-in-out'
 
-  const isVertical = ['left', 'right'].some((v) => v === props.placement)
+  const direction = ['up', 'down'].some((v) => v === props.placement) ? 'height' : 'width'
 
-  if (isVertical) {
-    if (isExpand) {
-      pane.style.width = pane.dataset.width ?? 'auto'
-      setTimeout(() => {
-        pane.style.minWidth = pane.dataset.beforeMinWidth ?? 'auto'
-      }, TRANSITION_DURATION)
-    } else {
-      // 合起来之前记录一下 minWidth 和 width
-      pane.dataset.beforeMinWidth = pane.style.minWidth
-      pane.dataset.width = pane.style.width
-
-      // TODO: 处理 right-arrow 和 bottom-arrow
-      pane.style.width = props.collapseSize ?? '0'
-      pane.style.minWidth = 'auto'
-    }
-  } else {
-    if (isExpand) {
-      pane.style.height = pane.dataset.height ?? 'auto'
-      setTimeout(() => {
-        pane.style.minHeight = pane.dataset.beforeMinHeight ?? 'auto'
-      }, TRANSITION_DURATION)
-    } else {
-      // 合起来之前记录一下 minWidth 和 width
-      pane.dataset.beforeMinHeight = pane.style.minHeight
-      pane.dataset.height = pane.style.height
-
-      pane.style.minHeight = 'auto'
-      pane.style.height = props.collapseSize ?? '0'
-    }
+  switch (props.placement) {
+    case 'right':
+    case 'down':
+      if (isExpand) {
+        expandNext(prevPane, nextPane, direction)
+      } else {
+        foldNext(prevPane, nextPane, direction)
+      }
+      break
+    case 'left':
+    case 'up':
+      if (isExpand) {
+        expandPrev(prevPane, direction)
+      } else {
+        foldPrev(prevPane, direction)
+      }
+    default:
+      break
   }
 
-  // TODO: cancel transition
+  setTimeout(() => {
+    prevPane.style.transition = ''
+  }, 300)
+}
+
+function getDirectionNames(direction: 'width' | 'height'): {
+  minDirection: 'minWidth' | 'minHeight'
+  beforeMinDirection: 'beforeMinWidth' | 'beforeMinHeight'
+} {
+  const minDirection = direction === 'width' ? 'minWidth' : 'minHeight'
+  const beforeMinDirection = direction === 'width' ? 'beforeMinWidth' : 'beforeMinHeight'
+  return { minDirection, beforeMinDirection }
+}
+
+function foldNext(prevPane: HTMLElement, nextPane: HTMLElement, direction: 'width' | 'height') {
+  const { minDirection, beforeMinDirection } = getDirectionNames(direction)
+
+  nextPane.dataset[beforeMinDirection] = nextPane.style[minDirection]
+  prevPane.dataset[direction] = prevPane.style[direction]
+
+  const { [direction]: next } = nextPane.getBoundingClientRect()
+  const { [direction]: pre } = prevPane.getBoundingClientRect()
+  nextPane.style[minDirection] = 'auto'
+  prevPane.style[direction] = `${pre + next - props.collapseSize}px`
+}
+
+function expandNext(prevPane: HTMLElement, nextPane: HTMLElement, direction: 'width' | 'height') {
+  const { minDirection, beforeMinDirection } = getDirectionNames(direction)
+
+  prevPane.style[direction] = prevPane.dataset[direction] ?? 'auto'
+  setTimeout(() => {
+    nextPane.style[minDirection] = nextPane.dataset[beforeMinDirection] ?? 'auto'
+  }, TRANSITION_DURATION)
+}
+
+function foldPrev(prevPane: HTMLElement, direction: 'width' | 'height') {
+  const { minDirection, beforeMinDirection } = getDirectionNames(direction)
+
+  prevPane.dataset[beforeMinDirection] = prevPane.style[minDirection]
+  prevPane.dataset[direction] = prevPane.style[direction]
+
+  prevPane.style[minDirection] = 'auto'
+  prevPane.style[direction] = `${props.collapseSize}px`
+}
+
+function expandPrev(prevPane: HTMLElement, direction: 'width' | 'height') {
+  const { minDirection, beforeMinDirection } = getDirectionNames(direction)
+
+  prevPane.style[direction] = prevPane.dataset[direction] ?? 'auto'
+
+  setTimeout(() => {
+    prevPane.style[minDirection] = prevPane.dataset[beforeMinDirection] ?? 'auto'
+  }, TRANSITION_DURATION)
 }
 
 function fold() {
@@ -105,11 +146,11 @@ function fold() {
 <template>
   <div v-show="props.modelValue" class="app-pane-divider" ref="appPaneDividerRef">
     <div
-      v-if="placement && props.modelValue"
+      v-show="placement && props.modelValue"
       class="app-pane-divider-fold"
       :data-collapse-size="collapseSize"
       :class="`is-${placement}`"
-      @pointerdown="fold"
+      @pointerdown.stop="fold"
     >
       <component :is="iconComponent" />
     </div>
