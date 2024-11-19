@@ -90,15 +90,14 @@ function selectMenu(componentName: ResourceComponentName) {
         color: var(--app-color-theme);
 
         .menu-item-icon {
-          fill: var(--app-color-theme);
+          color: var(--app-color-theme);
         }
       }
 
       .menu-item-icon {
-        width: 20px;
-        height: 20px;
+        font-size: 20px;
         margin-bottom: 6px;
-        fill: var(--app-text-color-primary);
+        color: var(--app-text-color-primary);
       }
     }
   }
