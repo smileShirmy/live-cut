@@ -99,12 +99,12 @@ function getDirectionNames(direction: 'width' | 'height'): {
 
 function foldNext(prevPane: HTMLElement, nextPane: HTMLElement, direction: 'width' | 'height') {
   const { minDirection, beforeMinDirection } = getDirectionNames(direction)
+  const { [direction]: next } = nextPane.getBoundingClientRect()
+  const { [direction]: pre } = prevPane.getBoundingClientRect()
 
   nextPane.dataset[beforeMinDirection] = nextPane.style[minDirection]
   prevPane.dataset[direction] = prevPane.style[direction]
 
-  const { [direction]: next } = nextPane.getBoundingClientRect()
-  const { [direction]: pre } = prevPane.getBoundingClientRect()
   nextPane.style[minDirection] = 'auto'
   prevPane.style[direction] = `${pre + next - props.collapseSize}px`
 }
