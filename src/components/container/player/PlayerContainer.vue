@@ -21,7 +21,6 @@ import PlayerControls from './components/player-controls/PlayerControls.vue'
   justify-content: space-between;
   align-items: center;
   margin-right: 1px;
-  width: 67%;
   background-color: var(--app-bg-color-dark);
 
   .player-canvas {

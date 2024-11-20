@@ -55,10 +55,10 @@ function clickContainer() {
 
 <style lang="scss" scoped>
 .attribute-container {
-  flex: 1;
   box-sizing: border-box;
   background-color: var(--app-bg-color);
   overflow: hidden;
+  width: 36%;
 
   .tabs {
     display: flex;

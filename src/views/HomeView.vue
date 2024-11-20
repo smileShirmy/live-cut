@@ -35,7 +35,7 @@ const attributeVisible = computed({
     <AppPaneDivider v-model="resourceVisible" placement="left" :collapse-size="80" />
     <AppPane :style="{ minWidth: '820px' }" class="editor-wrapper">
       <AppPane layout="vertical" :style="{ minHeight: '240px' }" class="player-workplace">
-        <PlayerContainer />
+        <PlayerContainer class="player-container" />
         <AppPaneDivider v-model="attributeVisible" placement="right" :collapse-size="80" />
         <AttributeContainer />
       </AppPane>
@@ -56,6 +56,10 @@ const attributeVisible = computed({
     flex-direction: column;
     overflow: hidden;
     margin-left: 1px;
+
+    .player-container {
+      flex: 1;
+    }
 
     .player-workplace {
       display: flex;

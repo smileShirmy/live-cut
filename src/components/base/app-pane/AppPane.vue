@@ -56,36 +56,64 @@ function onMousedown(event: MouseEvent | TouchEvent) {
     return
   }
 
-  const pane = divider.previousElementSibling
-  if (!(pane instanceof HTMLElement)) {
+  const prePane = divider.previousElementSibling
+  const nextPane = divider.nextElementSibling
+  if (!(prePane instanceof HTMLElement && nextPane instanceof HTMLElement)) {
     return
   }
 
   const { pageX: initialPageX, pageY: initialPageY } = getPageXY(event)
 
-  const { offsetWidth, offsetHeight } = pane
-  const usePercentage = pane.style.width.match('%')
+  const { offsetWidth: preWidth, offsetHeight: preHeight } = prePane
+  const { offsetWidth: nextWidth, offsetHeight: nextHeight } = nextPane
+  const preUsePercentage = prePane.style.width.match('%')
+  const nextUsePercentage = nextPane.style.width.match('%')
   isResizing.value = true
 
-  const resize = (initialSize: number | null = null, offset: number = 0) => {
-    if (!(pane instanceof HTMLElement) || initialSize === null || !containerRef.value) {
-      return 'auto'
+  const resize = (
+    preSize: number | null = null,
+    nextSize: number | null = null,
+    offset: number = 0,
+  ) => {
+    if (
+      !(prePane instanceof HTMLElement) ||
+      preSize === null ||
+      nextSize === null ||
+      !containerRef.value
+    ) {
+      return
     }
 
     if (props.layout === 'vertical') {
       const containerWidth = containerRef.value.clientWidth
-      const paneWidth = initialSize + offset
-      const width = usePercentage ? `${(paneWidth / containerWidth) * 100}%` : `${paneWidth}px`
+      const newPreWidth = preSize + offset
+      const preWidth = preUsePercentage
+        ? `${(newPreWidth / containerWidth) * 100}%`
+        : `${newPreWidth}px`
 
-      pane.dataset.width = pane.style.width = width
+      const newNextWidth = nextSize - offset
+      const nextWidth = nextUsePercentage
+        ? `${(newNextWidth / containerWidth) * 100}%`
+        : `${newNextWidth}px`
+
+      prePane.dataset.width = prePane.style.width = preWidth
+      nextPane.dataset.width = nextPane.style.width = nextWidth
     }
 
     if (props.layout === 'horizontal') {
-      const containerHeight = target.clientHeight
-      const paneHeight = initialSize + offset
-      const height = usePercentage ? `${(paneHeight / containerHeight) * 100}%` : `${paneHeight}px`
+      const containerHeight = containerRef.value.clientHeight
+      const newPreHeight = preSize + offset
+      const preHeight = preUsePercentage
+        ? `${(newPreHeight / containerHeight) * 100}%`
+        : `${newPreHeight}px`
 
-      pane.dataset.height = pane.style.height = height
+      const newNextHeight = nextSize - offset
+      const nextHeight = nextUsePercentage
+        ? `${(newNextHeight / containerHeight) * 100}%`
+        : `${newNextHeight}px`
+
+      prePane.dataset.height = prePane.style.height = preHeight
+      nextPane.dataset.height = nextPane.style.height = nextHeight
     }
   }
 
@@ -93,14 +121,14 @@ function onMousedown(event: MouseEvent | TouchEvent) {
     const { pageX, pageY } = getPageXY(event)
 
     if (props.layout === 'vertical') {
-      resize(offsetWidth, pageX - initialPageX)
+      resize(preWidth, nextWidth, pageX - initialPageX)
     } else {
-      resize(offsetHeight, pageY - initialPageY)
+      resize(preHeight, nextHeight, pageY - initialPageY)
     }
   }
 
   const onMouseUp = function () {
-    if (!(pane instanceof HTMLElement)) {
+    if (!(prePane instanceof HTMLElement)) {
       return
     }
 
@@ -136,7 +164,6 @@ function onMousedown(event: MouseEvent | TouchEvent) {
 <style lang="scss">
 .app-pane {
   display: flex;
-  position: relative;
 
   &.layout-h {
     flex-direction: column;
@@ -145,10 +172,6 @@ function onMousedown(event: MouseEvent | TouchEvent) {
   &.layout-v {
     flex-direction: row;
   }
-}
-
-.app-pane > div {
-  position: relative;
 }
 
 .app-pane-divider {

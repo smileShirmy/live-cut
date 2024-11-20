@@ -59,21 +59,21 @@ function toggle(isExpand: boolean) {
     return
   }
 
-  prevPane.style.transition = '0.3s ease-in-out'
-
   const direction = ['up', 'down'].some((v) => v === props.placement) ? 'height' : 'width'
 
   switch (props.placement) {
     case 'right':
     case 'down':
+      nextPane.style.transition = '0.3s ease-in-out'
       if (isExpand) {
-        expandNext(prevPane, nextPane, direction)
+        expandNext(nextPane, direction)
       } else {
-        foldNext(prevPane, nextPane, direction)
+        foldNext(nextPane, direction)
       }
       break
     case 'left':
     case 'up':
+      prevPane.style.transition = '0.3s ease-in-out'
       if (isExpand) {
         expandPrev(prevPane, direction)
       } else {
@@ -85,6 +85,7 @@ function toggle(isExpand: boolean) {
 
   setTimeout(() => {
     prevPane.style.transition = ''
+    nextPane.style.transition = ''
   }, TRANSITION_DURATION + 50)
 }
 
@@ -97,22 +98,21 @@ function getDirectionNames(direction: 'width' | 'height'): {
   return { minDirection, beforeMinDirection }
 }
 
-function foldNext(prevPane: HTMLElement, nextPane: HTMLElement, direction: 'width' | 'height') {
+function foldNext(nextPane: HTMLElement, direction: 'width' | 'height') {
   const { minDirection, beforeMinDirection } = getDirectionNames(direction)
   const { [direction]: next } = nextPane.getBoundingClientRect()
-  const { [direction]: pre } = prevPane.getBoundingClientRect()
 
   nextPane.dataset[beforeMinDirection] = nextPane.style[minDirection]
-  prevPane.dataset[direction] = prevPane.style[direction]
+  nextPane.dataset[direction] = `${next}px`
 
   nextPane.style[minDirection] = 'auto'
-  prevPane.style[direction] = `${pre + next - props.collapseSize}px`
+  nextPane.style[direction] = `${props.collapseSize}px`
 }
 
-function expandNext(prevPane: HTMLElement, nextPane: HTMLElement, direction: 'width' | 'height') {
+function expandNext(nextPane: HTMLElement, direction: 'width' | 'height') {
   const { minDirection, beforeMinDirection } = getDirectionNames(direction)
 
-  prevPane.style[direction] = prevPane.dataset[direction] ?? 'auto'
+  nextPane.style[direction] = nextPane.dataset[direction] ?? 'auto'
   setTimeout(() => {
     nextPane.style[minDirection] = nextPane.dataset[beforeMinDirection] ?? 'auto'
   }, TRANSITION_DURATION)
