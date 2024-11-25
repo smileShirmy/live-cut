@@ -13,11 +13,14 @@ import { useTrackStore } from '@/store/track'
 
 const trackStore = useTrackStore()
 
-const scaleLevel = computed(() => trackStore.scaleLevel)
-
-function onScaleLevelChange(scaleLevel: number) {
-  trackStore.setScaleLevel(scaleLevel)
-}
+const scaleLevel = computed({
+  get() {
+    return trackStore.scaleLevel
+  },
+  set(scaleLevel: number) {
+    trackStore.setScaleLevel(scaleLevel)
+  },
+})
 
 function split() {
   // TODO:
@@ -90,7 +93,7 @@ function redo() {
         </div>
       </AppPopper>
 
-      <ScaleSlider v-model="scaleLevel" @change="onScaleLevelChange" :disabled="false" />
+      <ScaleSlider v-model="scaleLevel" :disabled="false" />
     </section>
   </div>
 </template>

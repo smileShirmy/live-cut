@@ -16,9 +16,9 @@ export const FPS = 30
 /**
  * 初始化最大帧数
  */
-export const INIT_MAX_FRAME_COUNT = 300
+export const DEFAULT_MAX_FRAME_COUNT = 300
 
 /**
  * 缩放到最大时一帧的宽度
  */
-export const MAX_FRAME_COUNT = 60
+export const MAX_FRAME_WIDTH = 60
