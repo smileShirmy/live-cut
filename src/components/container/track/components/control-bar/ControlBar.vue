@@ -7,10 +7,17 @@ import { AlignRight as IconAlignRight } from '@icon-park/vue-next'
 import { AddSubset as IconAddSubset } from '@icon-park/vue-next'
 import { BringToFront as IconBringToFront } from '@icon-park/vue-next'
 import { AutoWidthOne as IconAutoWidthOne } from '@icon-park/vue-next'
-import { ref } from 'vue'
+import { computed } from 'vue'
 import ScaleSlider from './ScaleSlider.vue'
+import { useTrackStore } from '@/store/track'
 
-const scale = ref(0)
+const trackStore = useTrackStore()
+
+const scaleLevel = computed(() => trackStore.scaleLevel)
+
+function onScaleLevelChange(scaleLevel: number) {
+  trackStore.setScaleLevel(scaleLevel)
+}
 
 function split() {
   // TODO:
@@ -82,7 +89,8 @@ function redo() {
           <IconAutoWidthOne class="icon" />
         </div>
       </AppPopper>
-      <ScaleSlider v-model="scale" :disabled="false" />
+
+      <ScaleSlider v-model="scaleLevel" @change="onScaleLevelChange" :disabled="false" />
     </section>
   </div>
 </template>
