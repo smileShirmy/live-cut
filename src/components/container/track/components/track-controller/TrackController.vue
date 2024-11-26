@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import TimelineRuler from './TimelineRuler.vue'
+import TimelineRuler from './components/timeline-ruler/TimelineRuler.vue'
+import TrackScrollbar from './components/scrollbar/TrackScrollbar.vue'
 </script>
 
 <template>
@@ -8,7 +9,7 @@ import TimelineRuler from './TimelineRuler.vue'
 
     <div class="track-content">
       <div class="track-list-container">
-        <div v-for="i in 4" :key="i" class="track-item-container">
+        <div v-for="i in 10" :key="i" class="track-item-container">
           <div class="track-item-options"></div>
           <div class="track-item-wrapper">
             <div class="track-item"></div>
@@ -16,6 +17,8 @@ import TimelineRuler from './TimelineRuler.vue'
         </div>
       </div>
     </div>
+
+    <TrackScrollbar />
   </div>
 </template>
 
@@ -23,13 +26,15 @@ import TimelineRuler from './TimelineRuler.vue'
 .track-controller {
   display: flex;
   flex-direction: column;
+  position: relative;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 30px);
 
   .track-content {
-    flex: 1;
-    overflow: scroll;
+    box-sizing: border-box;
     padding: 80px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .track-list-container {
@@ -37,6 +42,7 @@ import TimelineRuler from './TimelineRuler.vue'
     flex-direction: column;
     justify-content: center;
     width: 100%;
+    min-height: 100%;
   }
 
   .track-item-container {

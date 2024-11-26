@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { MAX_FRAME_WIDTH } from '@/config'
 import { useTrackStore } from '@/store/track'
 import { useResizeObserver, useThrottleFn, watchThrottled } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { formatLongScaleTime, generateScaleOptions } from './helper'
 
 const RATIO = window.devicePixelRatio
@@ -22,22 +21,6 @@ const timelineRulerRef = ref<HTMLCanvasElement>()
 const trackStore = useTrackStore()
 const trackStoreRefs = storeToRefs(useTrackStore())
 
-/**
- * timelineRuler 不需要监听 Resize 实时变动，只在需要的时候手动触发更新宽度
- * 这时为了保证 frameWidth 不会频繁更新
- */
-const timelineRulerWidth = ref(0)
-
-const frameWidth = computed(() => {
-  // 一帧的最小宽度
-  const minFrameWidth = timelineRulerWidth.value / trackStore.maxFrameCount
-
-  // 缩放到最大时需要放大的倍数
-  const base = Math.pow(MAX_FRAME_WIDTH / minFrameWidth, 1 / 100)
-  const scaleRatio = Math.pow(base, trackStore.scaleLevel)
-  return minFrameWidth * scaleRatio
-})
-
 watchThrottled([trackStoreRefs.scaleLevel], render, {
   throttle: 100,
   trailing: true,
@@ -45,7 +28,7 @@ watchThrottled([trackStoreRefs.scaleLevel], render, {
 })
 
 function render() {
-  if (frameWidth.value <= 0) {
+  if (trackStore.frameWidth <= 0) {
     return
   }
   if (!timelineRulerRef.value) {
@@ -57,7 +40,7 @@ function render() {
   }
 
   const { width: rulerWidth, height: rulerHeight } = timelineRulerRef.value.getBoundingClientRect()
-  const { scaleWidth, parts, unit, type } = generateScaleOptions(frameWidth.value)
+  const { scaleWidth, parts, unit, type } = generateScaleOptions(trackStore.frameWidth)
 
   // 设置画布的宽度和高度
   ctx.canvas.width = rulerWidth
@@ -113,16 +96,16 @@ function render() {
   ctx.setTransform(1, 0, 0, 1, 0, 0)
 }
 
+const onResize = useThrottleFn<
+  (entries: ReadonlyArray<ResizeObserverEntry>, observer: ResizeObserver) => void
+>(render, 50, true)
+
+useResizeObserver(timelineRulerRef, onResize)
+
 onMounted(() => {
-  const onResize = useThrottleFn<
-    (entries: ReadonlyArray<ResizeObserverEntry>, observer: ResizeObserver) => void
-  >(render, 50, true)
-
-  useResizeObserver(timelineRulerRef.value, onResize)
-
   if (timelineRulerRef.value) {
-    const { width } = timelineRulerRef.value
-    timelineRulerWidth.value = width
+    const { width } = timelineRulerRef.value.getBoundingClientRect()
+    trackStore.setTimelineRulerWidth(width)
     render()
   }
 })
