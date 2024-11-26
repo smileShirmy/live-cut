@@ -96,28 +96,28 @@ export function generateScaleOptions(
  * 获取长刻度显示的时间文字
  *
  * @param {number} index 序号
- * @param {number} level 长刻度类型值
+ * @param {number} unit 长刻度类型值
  * @param {longScaleType} type 类型
  */
-export function formatLongScaleTime(index: number, level: number, unit: LongScaleUnit): string {
+export function formatLongScaleTime(index: number, unit: number, type: LongScaleUnit): string {
   if (index === 0) return '00:00'
 
-  if (unit === LongScaleUnit.FRAME) {
-    const frames = index * level
+  if (type === LongScaleUnit.FRAME) {
+    const frames = index * unit
     // 如果刚好满足秒数显示条件则进行格式化显示具体时间
     if (frames % 30 === 0) {
       return secondsToTime(frames / 30)
     }
-    return `${(index * level) % 30}f`
+    return `${(index * unit) % 30}f`
   }
 
-  if (unit === LongScaleUnit.SECOND) {
-    return secondsToTime(index * level)
+  if (type === LongScaleUnit.SECOND) {
+    return secondsToTime(index * unit)
   }
 
-  if (unit === LongScaleUnit.MINUTE) {
-    return minutesToTime(index * level)
+  if (type === LongScaleUnit.MINUTE) {
+    return minutesToTime(index * unit)
   }
 
-  return hoursToTime(index * level)
+  return hoursToTime(index * unit)
 }

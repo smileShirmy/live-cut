@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { MAX_FRAME_WIDTH } from '@/config'
 import { useTrackStore } from '@/store/track'
-import { useResizeObserver, watchThrottled } from '@vueuse/core'
+import { useResizeObserver, useThrottleFn, watchThrottled } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { ref, onMounted, computed } from 'vue'
 import { formatLongScaleTime, generateScaleOptions } from './helper'
@@ -14,13 +14,18 @@ const SCALE_WIDTH = 1 // 刻度的宽度
 const SHORT_SCALE_HEIGHT = 7
 const LONG_SCALE_HEIGHT = 13
 const TEXT_TRANSLATE_X = 4
-const TEXT_TRANSLATE_Y = LONG_SCALE_HEIGHT + 2
+const TEXT_TRANSLATE_Y = LONG_SCALE_HEIGHT + 6
 const TEXT_COLOR = '#999'
 const TEXT_FONT = `${13 * RATIO}px sans-serif`
 
 const timelineRulerRef = ref<HTMLCanvasElement>()
 const trackStore = useTrackStore()
 const trackStoreRefs = storeToRefs(useTrackStore())
+
+/**
+ * timelineRuler 不需要监听 Resize 实时变动，只在需要的时候手动触发更新宽度
+ * 这时为了保证 frameWidth 不会频繁更新
+ */
 const timelineRulerWidth = ref(0)
 
 const frameWidth = computed(() => {
@@ -33,13 +38,16 @@ const frameWidth = computed(() => {
   return minFrameWidth * scaleRatio
 })
 
-watchThrottled([trackStoreRefs.scaleLevel, timelineRulerWidth], render, {
+watchThrottled([trackStoreRefs.scaleLevel], render, {
   throttle: 100,
   trailing: true,
   immediate: true,
 })
 
 function render() {
+  if (frameWidth.value <= 0) {
+    return
+  }
   if (!timelineRulerRef.value) {
     return
   }
@@ -66,42 +74,57 @@ function render() {
   ctx.lineWidth = SCALE_WIDTH
 
   ctx.beginPath()
-
-  ctx.fillStyle = TEXT_COLOR
-  ctx.font = TEXT_FONT
-
-  // prevent canvas 1px line blurry
+  ctx.strokeStyle = SHORT_SCALE_COLOR
   const scaleCount = Math.floor(rulerWidth / scaleWidth)
+  const longXList: number[] = []
   for (let i = 0; i < scaleCount; i += 1) {
+    // prevent canvas 1px line blurry
     const x = Math.round(scaleWidth * i) + 0.5
 
-    ctx.moveTo(x, 0)
-
     if (i % parts === 0) {
-      ctx.strokeStyle = LONG_SCALE_COLOR
-      ctx.save()
-      ctx.translate(x + TEXT_TRANSLATE_X, TEXT_TRANSLATE_Y)
-      const text = formatLongScaleTime(i, unit, type)
-      ctx.fillText(text, 0, 0)
-      ctx.restore()
-      ctx.lineTo(x, LONG_SCALE_HEIGHT)
-    } else {
-      ctx.strokeStyle = SHORT_SCALE_COLOR
-      ctx.lineTo(x, SHORT_SCALE_HEIGHT)
+      longXList.push(x)
+      continue
     }
+
+    ctx.moveTo(x, 0)
+    ctx.lineTo(x, SHORT_SCALE_HEIGHT)
+  }
+  ctx.stroke()
+  ctx.closePath()
+
+  ctx.beginPath()
+  ctx.strokeStyle = LONG_SCALE_COLOR
+  ctx.fillStyle = TEXT_COLOR
+  ctx.font = TEXT_FONT
+  for (let i = 0; i < longXList.length; i += 1) {
+    const x = longXList[i]
+    ctx.moveTo(x, 0)
+    ctx.save()
+    ctx.translate(x + TEXT_TRANSLATE_X, TEXT_TRANSLATE_Y)
+    const text = formatLongScaleTime(i, unit, type)
+    ctx.fillText(text, 0, 0)
+    ctx.restore()
+    ctx.lineTo(x, LONG_SCALE_HEIGHT)
   }
 
   ctx.stroke()
-
   ctx.closePath()
 
   ctx.setTransform(1, 0, 0, 1, 0, 0)
 }
 
 onMounted(() => {
-  useResizeObserver(timelineRulerRef.value, ([{ contentRect }]) => {
-    timelineRulerWidth.value = contentRect.width
-  })
+  const onResize = useThrottleFn<
+    (entries: ReadonlyArray<ResizeObserverEntry>, observer: ResizeObserver) => void
+  >(render, 50, true)
+
+  useResizeObserver(timelineRulerRef.value, onResize)
+
+  if (timelineRulerRef.value) {
+    const { width } = timelineRulerRef.value
+    timelineRulerWidth.value = width
+    render()
+  }
 })
 </script>
 
@@ -113,12 +136,12 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .timeline-ruler-container {
-  display: flex;
   height: 30px;
 
   .timeline-ruler {
-    flex: 1;
     margin-left: 80px;
+    width: calc(100% - 80px);
+    height: 100%;
   }
 }
 </style>
