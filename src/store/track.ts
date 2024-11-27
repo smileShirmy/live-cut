@@ -10,6 +10,8 @@ export const useTrackStore = defineStore('track', () => {
    * 这时为了保证 frameWidth 不会频繁更新
    */
   const timelineRulerWidth = ref(0)
+  const scrollbarContainerWidth = ref(0)
+  const scrollLeft = ref(0)
 
   const frameWidth = computed(() => {
     // 一帧的最小宽度
@@ -25,6 +27,12 @@ export const useTrackStore = defineStore('track', () => {
     return frameWidth.value * maxFrameCount.value
   })
 
+  const scrollLeftTrackWidth = computed(() => {
+    return scrollbarContainerWidth.value > 0
+      ? (scrollLeft.value / scrollbarContainerWidth.value) * trackWidth.value
+      : 0
+  })
+
   function setScaleLevel(level: number) {
     scaleLevel.value = level
   }
@@ -37,14 +45,29 @@ export const useTrackStore = defineStore('track', () => {
     timelineRulerWidth.value = width
   }
 
+  function setScrollbarContainerWidth(width: number) {
+    scrollbarContainerWidth.value = width
+  }
+
+  function setScrollLeft(left: number) {
+    scrollLeft.value = left
+  }
+
   return {
-    frameWidth,
     scaleLevel,
     maxFrameCount,
     timelineRulerWidth,
+    scrollbarContainerWidth,
+    scrollLeft,
+
+    frameWidth,
     trackWidth,
+    scrollLeftTrackWidth,
+
     setScaleLevel,
     setMaxFrameCount,
     setTimelineRulerWidth,
+    setScrollbarContainerWidth,
+    setScrollLeft,
   }
 })

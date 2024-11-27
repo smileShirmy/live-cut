@@ -21,7 +21,7 @@ const timelineRulerRef = ref<HTMLCanvasElement>()
 const trackStore = useTrackStore()
 const trackStoreRefs = storeToRefs(useTrackStore())
 
-watchThrottled([trackStoreRefs.scaleLevel], render, {
+watchThrottled([trackStoreRefs.scaleLevel, trackStoreRefs.scrollLeft], render, {
   throttle: 100,
   trailing: true,
   immediate: true,
@@ -41,6 +41,8 @@ function render() {
 
   const { width: rulerWidth, height: rulerHeight } = timelineRulerRef.value.getBoundingClientRect()
   const { scaleWidth, parts, unit, type } = generateScaleOptions(trackStore.frameWidth)
+  const scrollLeftScaleCount = Math.floor(trackStore.scrollLeftTrackWidth / scaleWidth)
+  const startOffset = -(trackStore.scrollLeftTrackWidth % scaleWidth)
 
   // 设置画布的宽度和高度
   ctx.canvas.width = rulerWidth
@@ -59,13 +61,13 @@ function render() {
   ctx.beginPath()
   ctx.strokeStyle = SHORT_SCALE_COLOR
   const scaleCount = Math.floor(rulerWidth / scaleWidth)
-  const longXList: number[] = []
+  const longScaleList: { x: number; i: number }[] = []
   for (let i = 0; i < scaleCount; i += 1) {
     // prevent canvas 1px line blurry
-    const x = Math.round(scaleWidth * i) + 0.5
+    const x = startOffset + Math.round(scaleWidth * i) + 0.5
 
-    if (i % parts === 0) {
-      longXList.push(x)
+    if ((i + scrollLeftScaleCount) % parts === 0) {
+      longScaleList.push({ x, i: i + scrollLeftScaleCount })
       continue
     }
 
@@ -79,8 +81,7 @@ function render() {
   ctx.strokeStyle = LONG_SCALE_COLOR
   ctx.fillStyle = TEXT_COLOR
   ctx.font = TEXT_FONT
-  for (let i = 0; i < longXList.length; i += 1) {
-    const x = longXList[i]
+  for (const { x, i } of longScaleList) {
     ctx.moveTo(x, 0)
     ctx.save()
     ctx.translate(x + TEXT_TRANSLATE_X, TEXT_TRANSLATE_Y)

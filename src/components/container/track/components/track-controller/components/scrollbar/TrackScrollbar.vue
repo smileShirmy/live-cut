@@ -4,19 +4,21 @@ import { useResizeObserver, useThrottleFn } from '@vueuse/core'
 import { computed, ref, type ComputedRef, type CSSProperties } from 'vue'
 
 const scrollbarContainerRef = ref<HTMLDivElement>()
-const scrollbarContainerWidth = ref(0)
 const scrollbarRef = ref<HTMLDivElement>()
-const left = ref(0)
 
 const trackStore = useTrackStore()
 
 const showScrollbar = computed(() => trackStore.scaleLevel > 0)
-const scrollbarPercentage = computed(() => scrollbarContainerWidth.value / trackStore.trackWidth)
-const scrollbarWidth = computed(() => scrollbarPercentage.value * scrollbarContainerWidth.value)
+const scrollbarPercentage = computed(
+  () => trackStore.scrollbarContainerWidth / trackStore.trackWidth,
+)
+const scrollbarWidth = computed(
+  () => scrollbarPercentage.value * trackStore.scrollbarContainerWidth,
+)
 const scrollbarStyle: ComputedRef<CSSProperties> = computed(() => {
   return {
     width: scrollbarPercentage.value > 0 ? `${scrollbarPercentage.value * 100}%` : 'auto',
-    left: `${left.value}px`,
+    left: `${trackStore.scrollLeft}px`,
   }
 })
 
@@ -25,7 +27,7 @@ const onScrollbarContainerResize = useThrottleFn<
 >(
   ([{ contentRect }]) => {
     const { width } = contentRect
-    scrollbarContainerWidth.value = width
+    trackStore.setScrollbarContainerWidth(width)
   },
   50,
   true,
@@ -50,9 +52,9 @@ function getClientX(event: MouseEvent | TouchEvent) {
 function onDragStart(event: MouseEvent | TouchEvent) {
   dragging = true
   startX = getClientX(event)
-  startPosition = left.value
+  startPosition = trackStore.scrollLeft
   newPosition = startPosition
-  maxPosition = Math.floor(scrollbarContainerWidth.value - scrollbarWidth.value)
+  maxPosition = Math.floor(trackStore.scrollbarContainerWidth - scrollbarWidth.value)
 }
 
 function onDragging(event: MouseEvent | TouchEvent) {
@@ -61,14 +63,14 @@ function onDragging(event: MouseEvent | TouchEvent) {
     const diff = currentX - startX
     newPosition = startPosition + diff
     if (newPosition < 0) {
-      left.value = 0
+      trackStore.setScrollLeft(0)
       return
     }
     if (newPosition > maxPosition) {
-      left.value = maxPosition
+      trackStore.setScrollLeft(maxPosition)
       return
     }
-    left.value = newPosition
+    trackStore.setScrollLeft(newPosition)
   }
 }
 
