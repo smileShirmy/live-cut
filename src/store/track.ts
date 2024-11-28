@@ -14,6 +14,9 @@ export const useTrackStore = defineStore('track', () => {
   const scrollLeft = ref(0)
 
   const frameWidth = computed(() => {
+    if (timelineRulerWidth.value === 0) {
+      return 0
+    }
     // 一帧的最小宽度
     const minFrameWidth = timelineRulerWidth.value / maxFrameCount.value
 

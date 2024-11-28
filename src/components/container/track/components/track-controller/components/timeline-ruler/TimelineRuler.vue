@@ -22,7 +22,7 @@ const trackStore = useTrackStore()
 const trackStoreRefs = storeToRefs(useTrackStore())
 
 watchThrottled([trackStoreRefs.scaleLevel, trackStoreRefs.scrollLeft], render, {
-  throttle: 100,
+  throttle: 20,
   trailing: true,
   immediate: true,
 })
@@ -67,7 +67,7 @@ function render() {
     const x = startOffset + Math.round(scaleWidth * i) + 0.5
 
     if ((i + scrollLeftScaleCount) % parts === 0) {
-      longScaleList.push({ x, i: i + scrollLeftScaleCount })
+      longScaleList.push({ x, i: (i + scrollLeftScaleCount) / parts })
       continue
     }
 

@@ -1,4 +1,5 @@
 import { hoursToTime, minutesToTime, secondsToTime } from '@/services/helpers/time'
+import { FPS } from '@/config'
 
 // 长刻度单位
 export enum LongScaleUnit {
@@ -105,10 +106,10 @@ export function formatLongScaleTime(index: number, unit: number, type: LongScale
   if (type === LongScaleUnit.FRAME) {
     const frames = index * unit
     // 如果刚好满足秒数显示条件则进行格式化显示具体时间
-    if (frames % 30 === 0) {
-      return secondsToTime(frames / 30)
+    if (frames % FPS === 0) {
+      return secondsToTime(frames / FPS)
     }
-    return `${(index * unit) % 30}f`
+    return `${(index * unit) % FPS}f`
   }
 
   if (type === LongScaleUnit.SECOND) {

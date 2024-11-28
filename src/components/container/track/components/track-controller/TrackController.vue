@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import TimelineRuler from './components/timeline-ruler/TimelineRuler.vue'
+import TimelineCursor from './components/timeline-cursor/TimelineCursor.vue'
 import TrackScrollbar from './components/scrollbar/TrackScrollbar.vue'
 </script>
 
 <template>
   <div class="track-controller">
     <TimelineRuler />
+    <TimelineCursor />
 
     <div class="track-content">
       <div class="track-list-container">
