@@ -27,3 +27,8 @@ export const MAX_FRAME_WIDTH = 60
  * 轨道资源距离左侧的偏移量
  */
 export const TRACK_RESOURCE_OFFSET_LEFT = 80
+
+/**
+ * 时间刻度光标超过控制范围时滚动条自动滚动速度
+ */
+export const AUTO_SCROLL_SPEED = 50

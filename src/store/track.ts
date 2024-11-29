@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 export const useTrackStore = defineStore('track', () => {
-  const scaleLevel = ref(10)
+  const scaleLevel = ref(0)
   const maxFrameCount = ref(DEFAULT_MAX_FRAME_COUNT)
   /**
    * timelineRuler 不需要监听 Resize 实时变动，只在需要的时候手动触发更新宽度
@@ -36,6 +36,14 @@ export const useTrackStore = defineStore('track', () => {
       : 0
   })
 
+  const scrollbarPercentage = computed(() => scrollbarContainerWidth.value / trackWidth.value)
+
+  const scrollbarWidth = computed(() => scrollbarPercentage.value * scrollbarContainerWidth.value)
+
+  const maxScrollLeft = computed(() =>
+    Math.ceil(scrollbarContainerWidth.value - scrollbarWidth.value),
+  )
+
   function setScaleLevel(level: number) {
     scaleLevel.value = level
   }
@@ -66,6 +74,9 @@ export const useTrackStore = defineStore('track', () => {
     frameWidth,
     trackWidth,
     scrollLeftTrackWidth,
+    scrollbarPercentage,
+    scrollbarWidth,
+    maxScrollLeft,
 
     setScaleLevel,
     setMaxFrameCount,

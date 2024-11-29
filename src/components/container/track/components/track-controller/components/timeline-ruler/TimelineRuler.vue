@@ -60,9 +60,9 @@ function render() {
 
   ctx.beginPath()
   ctx.strokeStyle = SHORT_SCALE_COLOR
-  const scaleCount = Math.floor(rulerWidth / scaleWidth)
+  const scaleCount = Math.ceil(rulerWidth / scaleWidth)
   const longScaleList: { x: number; i: number }[] = []
-  for (let i = 0; i < scaleCount; i += 1) {
+  for (let i = 0; i < scaleCount + 1; i += 1) {
     // prevent canvas 1px line blurry
     const x = startOffset + Math.round(scaleWidth * i) + 0.5
 

@@ -9,15 +9,9 @@ const scrollbarRef = ref<HTMLDivElement>()
 const trackStore = useTrackStore()
 
 const showScrollbar = computed(() => trackStore.scaleLevel > 0)
-const scrollbarPercentage = computed(
-  () => trackStore.scrollbarContainerWidth / trackStore.trackWidth,
-)
-const scrollbarWidth = computed(
-  () => scrollbarPercentage.value * trackStore.scrollbarContainerWidth,
-)
 const scrollbarStyle: ComputedRef<CSSProperties> = computed(() => {
   return {
-    width: scrollbarPercentage.value > 0 ? `${scrollbarPercentage.value * 100}%` : 'auto',
+    width: trackStore.scrollbarPercentage > 0 ? `${trackStore.scrollbarPercentage * 100}%` : 'auto',
     left: `${trackStore.scrollLeft}px`,
   }
 })
@@ -54,7 +48,7 @@ function onDragStart(event: MouseEvent | TouchEvent) {
   startX = getClientX(event)
   startPosition = trackStore.scrollLeft
   newPosition = startPosition
-  maxPosition = Math.floor(trackStore.scrollbarContainerWidth - scrollbarWidth.value)
+  maxPosition = trackStore.maxScrollLeft
 }
 
 function onDragging(event: MouseEvent | TouchEvent) {
@@ -64,13 +58,11 @@ function onDragging(event: MouseEvent | TouchEvent) {
     newPosition = startPosition + diff
     if (newPosition < 0) {
       trackStore.setScrollLeft(0)
-      return
-    }
-    if (newPosition > maxPosition) {
+    } else if (newPosition > maxPosition) {
       trackStore.setScrollLeft(maxPosition)
-      return
+    } else {
+      trackStore.setScrollLeft(newPosition)
     }
-    trackStore.setScrollLeft(newPosition)
   }
 }
 
