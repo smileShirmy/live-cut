@@ -99,8 +99,8 @@ function onButtonDown(event: MouseEvent | TouchEvent) {
       ref="scrollbarRef"
       class="scrollbar"
       :style="scrollbarStyle"
-      @mousedown="onButtonDown"
-      @touchstart="onButtonDown"
+      @mousedown.stop="onButtonDown"
+      @touchstart.stop="onButtonDown"
     ></div>
   </div>
 </template>

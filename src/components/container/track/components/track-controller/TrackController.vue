@@ -2,14 +2,38 @@
 import TimelineRuler from './components/timeline-ruler/TimelineRuler.vue'
 import TimelineCursor from './components/timeline-cursor/TimelineCursor.vue'
 import TrackScrollbar from './components/scrollbar/TrackScrollbar.vue'
+import { usePlayerStore } from '@/store/player'
+import { ref } from 'vue'
+import { useTrackStore } from '@/store/track'
+import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
+
+const playerStore = usePlayerStore()
+const trackStore = useTrackStore()
+
+const trackControllerRef = ref<HTMLDivElement>()
+
+function onClick({ clientX }: MouseEvent) {
+  if (!trackControllerRef.value) return
+
+  const { left } = trackControllerRef.value.getBoundingClientRect()
+  const offsetLeft = left + TRACK_RESOURCE_OFFSET_LEFT
+  if (clientX < offsetLeft) {
+    return
+  }
+
+  const currentFrame = Math.round(
+    (clientX - offsetLeft + trackStore.scrollLeftTrackWidth) / trackStore.frameWidth,
+  )
+  playerStore.setCurrentFrame(currentFrame)
+}
 </script>
 
 <template>
-  <div class="track-controller">
-    <TimelineRuler />
+  <div ref="trackControllerRef" class="track-controller">
+    <TimelineRuler @click="onClick" />
     <TimelineCursor />
 
-    <div class="track-content">
+    <div class="track-content" @click="onClick">
       <div class="track-list-container">
         <div v-for="i in 10" :key="i" class="track-item-container">
           <div class="track-item-options"></div>
@@ -34,6 +58,7 @@ import TrackScrollbar from './components/scrollbar/TrackScrollbar.vue'
 
   .track-content {
     box-sizing: border-box;
+    height: calc(100% - 36px);
     padding: 80px 0;
     overflow-x: hidden;
     overflow-y: auto;
