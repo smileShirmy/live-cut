@@ -1,20 +1,28 @@
 <script setup lang="ts">
+import { frameToTime } from '@/services/helpers/time'
+import { usePlayerStore } from '@/store/player'
 import { PlayOne as IconPlayOne } from '@icon-park/vue-next'
 import { Pause as IconPause } from '@icon-park/vue-next'
 import { GoStart as IconGoStart } from '@icon-park/vue-next'
 import { GoEnd as IconGoEnd } from '@icon-park/vue-next'
 import { Cutting as IconCutting } from '@icon-park/vue-next'
 import { FullScreenTwo as IconFullScreenTwo } from '@icon-park/vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+
+const playerStore = usePlayerStore()
 
 const playing = ref(true)
+
+const currentTime = computed(() => frameToTime(playerStore.currentFrame))
 </script>
 
 <template>
   <div class="player-controls">
     <div class="time-wrapper">
       <AppPopper content="当前时间点" hover>
-        <time class="current-time">00:00:49<span class="second-frame">.12</span></time>
+        <time class="current-time"
+          >{{ currentTime.time }}<span class="second-frame">.{{ currentTime.frame }}</span></time
+        >
       </AppPopper>
 
       <div class="split-line"></div>
