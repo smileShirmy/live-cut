@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 export const useTrackStore = defineStore('track', () => {
-  const scaleLevel = ref(0)
+  const scaleLevel = ref(30)
   const maxFrameCount = ref(DEFAULT_MAX_FRAME_COUNT)
   /**
    * timelineRuler 不需要监听 Resize 实时变动，只在需要的时候手动触发更新宽度
