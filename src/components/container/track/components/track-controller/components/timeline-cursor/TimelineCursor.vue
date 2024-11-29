@@ -2,22 +2,94 @@
 import { computed, type ComputedRef, type CSSProperties } from 'vue'
 import { useTrackStore } from '@/store/track'
 import { usePlayerStore } from '@/store/player'
+import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
 
 const trackStore = useTrackStore()
 const playerStore = usePlayerStore()
 
-const OFFSET_LEFT = 80
+let dragging = false
+let startX = 0
+let currentX = 0
+let startPosition = 0
+let newPosition = 0
+let maxPosition = 0
+let isClick = false
+
+const left = computed(
+  () => trackStore.frameWidth * playerStore.currentFrame - trackStore.scrollLeftTrackWidth,
+)
 
 const cursorStyle: ComputedRef<CSSProperties> = computed(() => {
-  const left = trackStore.frameWidth * playerStore.currentFrame - trackStore.scrollLeftTrackWidth
   return {
-    display: left < 0 ? 'none' : 'block',
-    left: `${left + OFFSET_LEFT}px`,
+    display: left.value < 0 ? 'none' : 'block',
+    left: `${left.value + TRACK_RESOURCE_OFFSET_LEFT}px`,
   }
 })
 
-function onCursorDown() {
-  //
+function getClientX(event: MouseEvent | TouchEvent) {
+  if (event instanceof TouchEvent) {
+    return event.touches[0].clientX
+  }
+  return event.clientX
+}
+
+function onDragStart(event: MouseEvent | TouchEvent) {
+  dragging = true
+  isClick = true
+  startX = getClientX(event)
+  startPosition = left.value
+  newPosition = startPosition
+  maxPosition = trackStore.trackWidth
+}
+
+function onDragging(event: MouseEvent | TouchEvent) {
+  if (dragging) {
+    currentX = getClientX(event)
+    const diff = currentX - startX
+    newPosition = startPosition + diff
+    setCurrentFrame(newPosition)
+  }
+}
+
+function setCurrentFrame(newPosition: number) {
+  if (newPosition < 0) {
+    newPosition = 0
+  } else if (newPosition > maxPosition) {
+    newPosition = maxPosition
+  }
+
+  const currentFrame = Math.round(
+    (newPosition + trackStore.scrollLeftTrackWidth) / trackStore.frameWidth,
+  )
+  playerStore.setCurrentFrame(currentFrame)
+}
+
+function onDragEnd() {
+  /*
+   * 防止在 mouseup 后立即触发 click，导致滑块有几率产生一小段位移
+   * 不使用 preventDefault 是因为 mouseup 和 click 没有注册在同一个 DOM 上
+   */
+  setTimeout(() => {
+    dragging = false
+    if (!isClick) {
+      setCurrentFrame(newPosition)
+    }
+  }, 0)
+  window.removeEventListener('mousemove', onDragging)
+  window.removeEventListener('touchmove', onDragging)
+  window.removeEventListener('mouseup', onDragEnd)
+  window.removeEventListener('touchend', onDragEnd)
+  window.removeEventListener('contextmenu', onDragEnd)
+}
+
+function onCursorDown(event: MouseEvent | TouchEvent) {
+  event.preventDefault()
+  onDragStart(event)
+  window.addEventListener('mousemove', onDragging)
+  window.addEventListener('touchmove', onDragging)
+  window.addEventListener('mouseup', onDragEnd)
+  window.addEventListener('touchend', onDragEnd)
+  window.addEventListener('contextmenu', onDragEnd)
 }
 </script>
 
