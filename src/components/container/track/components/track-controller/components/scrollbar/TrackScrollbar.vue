@@ -83,16 +83,35 @@ function onButtonDown(event: MouseEvent | TouchEvent) {
   window.addEventListener('touchend', onDragEnd)
   window.addEventListener('contextmenu', onDragEnd)
 }
+
+function onClickContainer({ clientX }: MouseEvent) {
+  if (!scrollbarContainerRef.value) return
+  const { left: offsetLeft } = scrollbarContainerRef.value.getBoundingClientRect()
+  const left = clientX - offsetLeft
+  const { scrollLeft, scrollbarWidth, maxScrollLeft } = trackStore
+  if (left > scrollLeft + scrollbarWidth) {
+    const newLeft = scrollLeft + scrollbarWidth
+    trackStore.setScrollLeft(newLeft > maxScrollLeft ? maxScrollLeft : newLeft)
+  } else if (left < scrollLeft) {
+    const newLeft = scrollLeft - scrollbarWidth
+    trackStore.setScrollLeft(newLeft < 0 ? 0 : newLeft)
+  }
+}
 </script>
 
 <template>
-  <div v-show="showScrollbar" ref="scrollbarContainerRef" class="scrollbar-container">
+  <div
+    v-show="showScrollbar"
+    ref="scrollbarContainerRef"
+    class="scrollbar-container"
+    @click="onClickContainer"
+  >
     <div
       ref="scrollbarRef"
       class="scrollbar"
       :style="scrollbarStyle"
-      @mousedown.stop="onButtonDown"
-      @touchstart.stop="onButtonDown"
+      @mousedown="onButtonDown"
+      @touchstart="onButtonDown"
     ></div>
   </div>
 </template>
