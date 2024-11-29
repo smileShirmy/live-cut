@@ -2,7 +2,7 @@
 import { computed, type ComputedRef, type CSSProperties } from 'vue'
 import { useTrackStore } from '@/store/track'
 import { usePlayerStore } from '@/store/player'
-import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
+import { AUTO_SCROLL_SPEED, TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
 
 const trackStore = useTrackStore()
 const playerStore = usePlayerStore()
@@ -14,11 +14,11 @@ let startPosition = 0
 let newPosition = 0
 let maxPosition = 0
 let isClick = false
+let scrollTimeout = 0
 
 const left = computed(
   () => trackStore.frameWidth * playerStore.currentFrame - trackStore.scrollLeftTrackWidth,
 )
-
 const cursorStyle: ComputedRef<CSSProperties> = computed(() => {
   return {
     display: left.value < 0 ? 'none' : 'block',
@@ -39,7 +39,8 @@ function onDragStart(event: MouseEvent | TouchEvent) {
   startX = getClientX(event)
   startPosition = left.value
   newPosition = startPosition
-  maxPosition = trackStore.trackWidth
+  maxPosition = trackStore.timelineRulerWidth
+  autoScroll()
 }
 
 function onDragging(event: MouseEvent | TouchEvent) {
@@ -51,12 +52,33 @@ function onDragging(event: MouseEvent | TouchEvent) {
   }
 }
 
+function autoScroll() {
+  scrollTimeout = setTimeout(() => {
+    const { scrollLeft, maxScrollLeft, frameWidth, maxFrameCount } = trackStore
+    if (newPosition < 0) {
+      const left = newPosition + scrollLeft
+      trackStore.setScrollLeft(left > 0 ? left : 0)
+      const currentFrame = Math.ceil(trackStore.scrollLeftTrackWidth / frameWidth)
+      playerStore.setCurrentFrame(currentFrame)
+    } else if (newPosition > maxPosition) {
+      const left = newPosition - maxPosition + scrollLeft
+      trackStore.setScrollLeft(left > maxScrollLeft ? maxScrollLeft : left)
+      const currentFrame = Math.floor(
+        (trackStore.scrollLeftTrackWidth + trackStore.scrollbarContainerWidth) / frameWidth,
+      )
+      playerStore.setCurrentFrame(left > maxScrollLeft ? maxFrameCount : currentFrame)
+    }
+    autoScroll()
+  }, AUTO_SCROLL_SPEED)
+}
+
+function stopAutoScroll() {
+  window.clearTimeout(scrollTimeout)
+}
+
 function setCurrentFrame(newPosition: number) {
-  if (newPosition < 0) {
-    newPosition = 0
-  } else if (newPosition > maxPosition) {
-    newPosition = maxPosition
-  }
+  // autoScroll 中处理
+  if (newPosition < 0 || newPosition > maxPosition) return
 
   const currentFrame = Math.round(
     (newPosition + trackStore.scrollLeftTrackWidth) / trackStore.frameWidth,
@@ -65,9 +87,10 @@ function setCurrentFrame(newPosition: number) {
 }
 
 function onDragEnd() {
+  stopAutoScroll()
   /*
    * 防止在 mouseup 后立即触发 click，导致滑块有几率产生一小段位移
-   * 不使用 preventDefault 是因为 mouseup 和 click 没有注册在同一个 DOM 上
+   * 不使用 preventDefault 是因为 mouseup 和 click 没有注册在同j一个 DOM 上
    */
   setTimeout(() => {
     dragging = false
