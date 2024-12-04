@@ -2,9 +2,9 @@
 import TimelineRuler from './components/timeline-ruler/TimelineRuler.vue'
 import TimelineCursor from './components/timeline-cursor/TimelineCursor.vue'
 import TrackScrollbar from './components/scrollbar/TrackScrollbar.vue'
-import { usePlayerStore } from '@/store/player'
+import { usePlayerStore } from '@/stores/player'
 import { ref } from 'vue'
-import { useTrackStore } from '@/store/track'
+import { useTrackStore } from '@/stores/track'
 import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
 
 const playerStore = usePlayerStore()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTrackStore } from '@/store/track'
+import { useTrackStore } from '@/stores/track'
 import { useResizeObserver, useThrottleFn } from '@vueuse/core'
 import { computed, ref, type ComputedRef, type CSSProperties } from 'vue'
 

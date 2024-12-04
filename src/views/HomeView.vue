@@ -4,7 +4,7 @@ import TrackContainer from '@/components/container/track/TrackContainer.vue'
 import PlayerContainer from '@/components/container/player/PlayerContainer.vue'
 import ResourceContainer from '@/components/container/resource/ResourceContainer.vue'
 import AttributeContainer from '@/components/container/attribute/AttributeContainer.vue'
-import { useAppStore } from '@/store/app'
+import { useAppStore } from '@/stores/app'
 import { computed } from 'vue'
 
 const appStore = useAppStore()

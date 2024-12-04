@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, type ComputedRef, type CSSProperties } from 'vue'
-import { useTrackStore } from '@/store/track'
-import { usePlayerStore } from '@/store/player'
+import { useTrackStore } from '@/stores/track'
+import { usePlayerStore } from '@/stores/player'
 import { AUTO_SCROLL_SPEED, TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
 
 const trackStore = useTrackStore()

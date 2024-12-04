@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTrackStore } from '@/store/track'
+import { useTrackStore } from '@/stores/track'
 import { useResizeObserver, useThrottleFn, watchThrottled } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAppStore } from '@/store/app'
+import { useAppStore } from '@/stores/app'
 import { ref } from 'vue'
 import EmptyAttribute from './empty-attribute/EmptyAttribute.vue'
 

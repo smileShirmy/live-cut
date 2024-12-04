@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { frameToTime } from '@/services/helpers/time'
-import { usePlayerStore } from '@/store/player'
+import { usePlayerStore } from '@/stores/player'
 import { PlayOne as IconPlayOne } from '@icon-park/vue-next'
 import { Pause as IconPause } from '@icon-park/vue-next'
 import { GoStart as IconGoStart } from '@icon-park/vue-next'

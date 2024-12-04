@@ -4,7 +4,7 @@ import { ResourceComponentName, type MenuItem } from '@/types'
 import { Video as IconVideo, Text as IconText } from '@icon-park/vue-next'
 import VideoResource from './layouts/VideoResource.vue'
 import TextResource from './layouts/TextResource.vue'
-import { useAppStore } from '@/store/app'
+import { useAppStore } from '@/stores/app'
 
 defineOptions({
   components: {

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useDragStore } from '@/store/drag'
+import { useDragStore } from '@/stores/drag'
 import { ref } from 'vue'
 
 const dragStore = useDragStore()

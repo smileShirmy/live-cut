@@ -9,7 +9,7 @@ import { BringToFront as IconBringToFront } from '@icon-park/vue-next'
 import { AutoWidthOne as IconAutoWidthOne } from '@icon-park/vue-next'
 import { computed } from 'vue'
 import ScaleSlider from './ScaleSlider.vue'
-import { useTrackStore } from '@/store/track'
+import { useTrackStore } from '@/stores/track'
 
 const trackStore = useTrackStore()
 
