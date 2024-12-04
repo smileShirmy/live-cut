@@ -1,5 +1,26 @@
+<script lang="ts" setup>
+import { useDragStore } from '@/store/drag'
+import { ref } from 'vue'
+
+const dragStore = useDragStore()
+const textItemRef = ref<HTMLElement>()
+
+function onDragStart(e: MouseEvent | TouchEvent) {
+  if (textItemRef.value) {
+    dragStore.onDragStart(e, textItemRef.value)
+  }
+}
+</script>
+
 <template>
-  <div class="text-item-container">text</div>
+  <div
+    ref="textItemRef"
+    class="text-item-container"
+    @mousedown="onDragStart"
+    @touchstart="onDragStart"
+  >
+    text
+  </div>
 </template>
 
 <style scoped lang="scss">

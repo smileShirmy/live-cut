@@ -3,7 +3,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 export const useTrackStore = defineStore('track', () => {
-  const scaleLevel = ref(30)
+  // TODO: 以时间光标作为中心点进行缩放（保持光标可视位置不变）
+  const scaleLevel = ref(0)
   const maxFrameCount = ref(DEFAULT_MAX_FRAME_COUNT)
   /**
    * timelineRuler 不需要监听 Resize 实时变动，只在需要的时候手动触发更新宽度

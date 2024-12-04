@@ -1,5 +1,24 @@
+<script lang="ts" setup>
+import { useDragStore } from '@/store/drag'
+import { ref } from 'vue'
+
+const dragStore = useDragStore()
+const videoItemRef = ref<HTMLElement>()
+
+function onDragStart(e: MouseEvent | TouchEvent) {
+  if (videoItemRef.value) {
+    dragStore.onDragStart(e, videoItemRef.value)
+  }
+}
+</script>
+
 <template>
-  <div class="video-item-container">
+  <div
+    ref="videoItemRef"
+    class="video-item-container"
+    @mousedown="onDragStart"
+    @touchstart="onDragStart"
+  >
     <div class="video-cover-wrapper">
       <img class="video-cover" src="" />
     </div>

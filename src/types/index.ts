@@ -8,8 +8,8 @@ export enum ResourceType {
 }
 
 export enum ResourceComponentName {
-  VIDEO_RESOURCE = 'videoResource',
-  TEXT_RESOURCE = 'textResource',
+  VIDEO_RESOURCE = 'VideoResource',
+  TEXT_RESOURCE = 'TextResource',
 }
 
 export interface MenuItem {
