@@ -1,9 +1,11 @@
 import { DEFAULT_MAX_FRAME_COUNT, MAX_FRAME_WIDTH } from '@/config'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { usePlayerStore } from './player'
 
 export const useTrackStore = defineStore('track', () => {
-  // TODO: 以时间光标作为中心点进行缩放（保持光标可视位置不变）
+  const playerStore = usePlayerStore()
+
   const scaleLevel = ref(0)
   const maxFrameCount = ref(DEFAULT_MAX_FRAME_COUNT)
   /**
@@ -44,6 +46,27 @@ export const useTrackStore = defineStore('track', () => {
   const maxScrollLeft = computed(() =>
     Math.ceil(scrollbarContainerWidth.value - scrollbarWidth.value),
   )
+
+  watch(scaleLevel, () => {
+    // const frameLeft = playerStore.currentFrame * frameWidth.value
+    // const ratio = scrollLeftTrackWidth.value > 0 ? frameLeft / scrollbarContainerWidth.value : 0
+    // if (ratio > 0) {
+    //   scrollLeft.value = scrollbarWidth.value * ratio
+    // }
+
+    const offsetLeft = frameWidth.value * playerStore.currentFrame - scrollLeftTrackWidth.value
+    const offsetLeftPercentage = offsetLeft / trackWidth.value
+    const initScrollbarLeftWidth = offsetLeftPercentage * scrollbarContainerWidth.value
+    const scrollbarLeftWidth =
+      (initScrollbarLeftWidth / scrollbarContainerWidth.value) * scrollbarWidth.value
+
+    console.log(scrollbarLeftWidth)
+
+    const ratio = scrollLeftTrackWidth.value / scrollbarContainerWidth.value
+    if (ratio > 0) {
+      scrollLeft.value = scrollbarWidth.value * ratio
+    }
+  })
 
   function setScaleLevel(level: number) {
     scaleLevel.value = level

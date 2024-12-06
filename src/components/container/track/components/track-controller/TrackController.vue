@@ -35,7 +35,7 @@ function onClick({ clientX }: MouseEvent) {
 
     <div class="track-content" @click="onClick">
       <div class="track-list-container">
-        <div v-for="i in 10" :key="i" class="track-item-container">
+        <div v-for="i in 1" :key="i" class="track-item-container">
           <div class="track-item-options"></div>
           <div class="track-item-wrapper">
             <div class="track-item"></div>
