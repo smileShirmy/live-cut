@@ -2,10 +2,37 @@
 import TimelineRuler from './components/timeline-ruler/TimelineRuler.vue'
 import TimelineCursor from './components/timeline-cursor/TimelineCursor.vue'
 import TrackScrollbar from './components/scrollbar/TrackScrollbar.vue'
+import MainTrack from './components/track/MainTrack.vue'
+import AudioTrack from './components/track/AudioTrack.vue'
 import { usePlayerStore } from '@/stores/player'
-import { ref } from 'vue'
 import { useTrackStore } from '@/stores/track'
 import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
+import { TrackComponentName, type Track } from '@/types'
+import { ref } from 'vue'
+import CommonTrack from './components/track/CommonTrack.vue'
+
+defineOptions({
+  components: {
+    [TrackComponentName.MAIN_TRACK]: MainTrack,
+    [TrackComponentName.COMMON_TRACK]: CommonTrack,
+    [TrackComponentName.AUDIO_TRACK]: AudioTrack,
+  },
+})
+
+const trackList = ref<Track[]>([
+  {
+    componentName: TrackComponentName.COMMON_TRACK,
+    itemList: [],
+  },
+  {
+    componentName: TrackComponentName.MAIN_TRACK,
+    itemList: [],
+  },
+  {
+    componentName: TrackComponentName.AUDIO_TRACK,
+    itemList: [],
+  },
+])
 
 const playerStore = usePlayerStore()
 const trackStore = useTrackStore()
@@ -35,12 +62,13 @@ function onClick({ clientX }: MouseEvent) {
 
     <div class="track-content" @click="onClick">
       <div class="track-list-container">
-        <div v-for="i in 1" :key="i" class="track-item-container">
-          <div class="track-item-options"></div>
-          <div class="track-item-wrapper">
-            <div class="track-item"></div>
-          </div>
-        </div>
+        <component
+          v-for="(track, i) in trackList"
+          :key="i"
+          class="track-container"
+          :is="track.componentName"
+          :track="track"
+        ></component>
       </div>
     </div>
 
@@ -72,34 +100,9 @@ function onClick({ clientX }: MouseEvent) {
     min-height: 100%;
   }
 
-  .track-item-container {
-    display: flex;
-    width: 100%;
-    height: 60px;
-
-    + .track-item-container {
+  .track-container {
+    + .track-container {
       margin-top: 8px;
-    }
-  }
-
-  .track-item-options {
-    flex-shrink: 0;
-    width: 80px;
-    height: 100%;
-  }
-
-  .track-item-wrapper {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-
-    .track-item {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 2000px;
-      height: 100%;
-      background-color: #000;
     }
   }
 }
