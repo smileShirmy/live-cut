@@ -16,28 +16,29 @@ export const useTrackStore = defineStore('track', () => {
   const scrollbarContainerWidth = ref(0)
   const scrollLeft = ref(0)
 
-  const frameWidth = computed(() => {
+  const minFrameWidth = computed(() => {
     if (timelineRulerWidth.value === 0) {
       return 0
     }
     // 一帧的最小宽度
-    const minFrameWidth = timelineRulerWidth.value / maxFrameCount.value
+    return timelineRulerWidth.value / maxFrameCount.value
+  })
 
+  const scaleRatio = computed(() => {
     // 缩放到最大时需要放大的倍数
-    const base = Math.pow(MAX_FRAME_WIDTH / minFrameWidth, 1 / 100)
-    const scaleRatio = Math.pow(base, scaleLevel.value)
-    return minFrameWidth * scaleRatio
+    const base = Math.pow(MAX_FRAME_WIDTH / minFrameWidth.value, 1 / 100)
+    return Math.pow(base, scaleLevel.value)
   })
 
-  const trackWidth = computed(() => {
-    return frameWidth.value * maxFrameCount.value
-  })
+  const frameWidth = computed(() => minFrameWidth.value * scaleRatio.value)
 
-  const scrollLeftTrackWidth = computed(() => {
-    return scrollbarContainerWidth.value > 0
+  const trackWidth = computed(() => frameWidth.value * maxFrameCount.value)
+
+  const scrollLeftTrackWidth = computed(() =>
+    scrollbarContainerWidth.value > 0
       ? (scrollLeft.value / scrollbarContainerWidth.value) * trackWidth.value
-      : 0
-  })
+      : 0,
+  )
 
   const scrollbarPercentage = computed(() => scrollbarContainerWidth.value / trackWidth.value)
 
@@ -47,25 +48,28 @@ export const useTrackStore = defineStore('track', () => {
     Math.ceil(scrollbarContainerWidth.value - scrollbarWidth.value),
   )
 
-  watch(scaleLevel, () => {
-    // const frameLeft = playerStore.currentFrame * frameWidth.value
-    // const ratio = scrollLeftTrackWidth.value > 0 ? frameLeft / scrollbarContainerWidth.value : 0
-    // if (ratio > 0) {
-    //   scrollLeft.value = scrollbarWidth.value * ratio
-    // }
-
-    const offsetLeft = frameWidth.value * playerStore.currentFrame - scrollLeftTrackWidth.value
-    const offsetLeftPercentage = offsetLeft / trackWidth.value
-    const initScrollbarLeftWidth = offsetLeftPercentage * scrollbarContainerWidth.value
-    const scrollbarLeftWidth =
-      (initScrollbarLeftWidth / scrollbarContainerWidth.value) * scrollbarWidth.value
-
-    console.log(scrollbarLeftWidth)
-
-    const ratio = scrollLeftTrackWidth.value / scrollbarContainerWidth.value
-    if (ratio > 0) {
-      scrollLeft.value = scrollbarWidth.value * ratio
+  watch(scaleRatio, (newRatio, oldRatio) => {
+    /**
+     * 时间刻度缩放时以时间光标作为缩放原点
+     */
+    const ratioToScrollbarWidth = (scaleRatio: number) => {
+      const frameWidth = minFrameWidth.value * scaleRatio
+      const trackWidth = frameWidth * maxFrameCount.value
+      return scrollbarContainerWidth.value * (scrollbarContainerWidth.value / trackWidth)
     }
+    const cursorLeftPercent = (scaleRatio: number) => {
+      const frameWidth = minFrameWidth.value * scaleRatio
+      const trackWidth = frameWidth * maxFrameCount.value
+      const scrollLeftTrackWidth = (scrollLeft.value / scrollbarContainerWidth.value) * trackWidth
+      const leftPercent =
+        (frameWidth * playerStore.currentFrame - scrollLeftTrackWidth) /
+        scrollbarContainerWidth.value
+      return leftPercent
+    }
+    const barDiffWidth = ratioToScrollbarWidth(oldRatio) - ratioToScrollbarWidth(newRatio)
+    const leftPercent = cursorLeftPercent(oldRatio)
+
+    setScrollLeft(scrollLeft.value + barDiffWidth * leftPercent)
   })
 
   function setScaleLevel(level: number) {

@@ -8,7 +8,11 @@ const scrollbarRef = ref<HTMLDivElement>()
 
 const trackStore = useTrackStore()
 
-const showScrollbar = computed(() => trackStore.scaleLevel > 0)
+const scrollbarContainerStyle: ComputedRef<CSSProperties> = computed(() => {
+  return {
+    visibility: trackStore.scaleLevel > 0 ? 'unset' : 'hidden',
+  }
+})
 const scrollbarStyle: ComputedRef<CSSProperties> = computed(() => {
   return {
     width: trackStore.scrollbarPercentage > 0 ? `${trackStore.scrollbarPercentage * 100}%` : 'auto',
@@ -101,9 +105,9 @@ function onClickContainer({ clientX }: MouseEvent) {
 
 <template>
   <div
-    v-show="showScrollbar"
     ref="scrollbarContainerRef"
     class="scrollbar-container"
+    :style="scrollbarContainerStyle"
     @click="onClickContainer"
   >
     <div
