@@ -24,6 +24,30 @@ const trackList = ref<Track[]>([
     componentName: TrackComponentName.COMMON_TRACK,
     itemList: [],
   },
+  // {
+  //   componentName: TrackComponentName.COMMON_TRACK,
+  //   itemList: [],
+  // },
+  // {
+  //   componentName: TrackComponentName.COMMON_TRACK,
+  //   itemList: [],
+  // },
+  // {
+  //   componentName: TrackComponentName.COMMON_TRACK,
+  //   itemList: [],
+  // },
+  // {
+  //   componentName: TrackComponentName.COMMON_TRACK,
+  //   itemList: [],
+  // },
+  // {
+  //   componentName: TrackComponentName.COMMON_TRACK,
+  //   itemList: [],
+  // },
+  // {
+  //   componentName: TrackComponentName.COMMON_TRACK,
+  //   itemList: [],
+  // },
   {
     componentName: TrackComponentName.MAIN_TRACK,
     itemList: [],
@@ -87,16 +111,17 @@ function onClick({ clientX }: MouseEvent) {
   .track-content {
     box-sizing: border-box;
     height: calc(100% - 36px);
-    padding: 80px 0;
     overflow-x: hidden;
     overflow-y: auto;
   }
 
   .track-list-container {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 100%;
+    padding: 80px 0;
     min-height: 100%;
   }
 

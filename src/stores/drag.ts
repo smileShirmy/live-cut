@@ -12,6 +12,9 @@ export const useDragStore = defineStore('drag', () => {
 
   function onDragging(event: MouseEvent | TouchEvent) {
     if (dragging && clone) {
+      /**
+       * 更新拖拽元素的样式
+       */
       const { x, y } = getPosition(event)
       clone.style.position = 'fixed'
       clone.style.pointerEvents = 'none'
