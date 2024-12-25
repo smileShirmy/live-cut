@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import type { CommonTrack } from '@/types'
+import { TrackPosition, type CommonTrack } from '@/types'
 
 defineProps<{
   track: CommonTrack
 }>()
+
+defineExpose<{
+  position: TrackPosition.Common
+}>({
+  position: TrackPosition.Common,
+})
 </script>
 
 <template>

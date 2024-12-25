@@ -4,12 +4,20 @@ import TimelineCursor from './components/timeline-cursor/TimelineCursor.vue'
 import TrackScrollbar from './components/scrollbar/TrackScrollbar.vue'
 import MainTrack from './components/track/MainTrack.vue'
 import AudioTrack from './components/track/AudioTrack.vue'
+import CommonTrack from './components/track/CommonTrack.vue'
 import { usePlayerStore } from '@/stores/player'
 import { useTrackStore } from '@/stores/track'
 import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
-import { TrackComponentName, type Track } from '@/types'
-import { ref } from 'vue'
-import CommonTrack from './components/track/CommonTrack.vue'
+import {
+  TrackComponentName,
+  TrackPosition,
+  type Track,
+  type TrackComponent,
+  type TrackPositionItem,
+} from '@/types'
+import { ref, useTemplateRef } from 'vue'
+import { Events, emitter } from '@/services/mitt/emitter'
+import { useDragStore } from '@/stores/drag'
 
 defineOptions({
   components: {
@@ -24,30 +32,30 @@ const trackList = ref<Track[]>([
     componentName: TrackComponentName.COMMON_TRACK,
     itemList: [],
   },
-  // {
-  //   componentName: TrackComponentName.COMMON_TRACK,
-  //   itemList: [],
-  // },
-  // {
-  //   componentName: TrackComponentName.COMMON_TRACK,
-  //   itemList: [],
-  // },
-  // {
-  //   componentName: TrackComponentName.COMMON_TRACK,
-  //   itemList: [],
-  // },
-  // {
-  //   componentName: TrackComponentName.COMMON_TRACK,
-  //   itemList: [],
-  // },
-  // {
-  //   componentName: TrackComponentName.COMMON_TRACK,
-  //   itemList: [],
-  // },
-  // {
-  //   componentName: TrackComponentName.COMMON_TRACK,
-  //   itemList: [],
-  // },
+  {
+    componentName: TrackComponentName.COMMON_TRACK,
+    itemList: [],
+  },
+  {
+    componentName: TrackComponentName.COMMON_TRACK,
+    itemList: [],
+  },
+  {
+    componentName: TrackComponentName.COMMON_TRACK,
+    itemList: [],
+  },
+  {
+    componentName: TrackComponentName.COMMON_TRACK,
+    itemList: [],
+  },
+  {
+    componentName: TrackComponentName.COMMON_TRACK,
+    itemList: [],
+  },
+  {
+    componentName: TrackComponentName.COMMON_TRACK,
+    itemList: [],
+  },
   {
     componentName: TrackComponentName.MAIN_TRACK,
     itemList: [],
@@ -60,8 +68,11 @@ const trackList = ref<Track[]>([
 
 const playerStore = usePlayerStore()
 const trackStore = useTrackStore()
+const dragStore = useDragStore()
 
-const trackControllerRef = ref<HTMLDivElement>()
+const trackControllerRef = useTemplateRef<HTMLDivElement>('trackControllerRef')
+const trackRefs = useTemplateRef<TrackComponent[]>('trackRefs')
+const trackListContainerRef = useTemplateRef<HTMLDivElement>('trackListContainerRef')
 
 function onClick({ clientX }: MouseEvent) {
   if (!trackControllerRef.value) return
@@ -77,6 +88,56 @@ function onClick({ clientX }: MouseEvent) {
   )
   playerStore.setCurrentFrame(currentFrame)
 }
+
+emitter.on(Events.INIT_TRACK_POSITIONS, () => {
+  if (!trackRefs.value || !trackListContainerRef.value) {
+    return
+  }
+
+  let trackPositions: { type: TrackPosition; rect: DOMRect }[] = []
+  for (const track of trackRefs.value) {
+    trackPositions.push({
+      type: track.position,
+      rect: track.$el.getBoundingClientRect(),
+    })
+  }
+  trackPositions = trackPositions.sort((a, b) => a.rect.top - b.rect.top)
+
+  const { top: listTop } = trackListContainerRef.value.getBoundingClientRect()
+  const positions: TrackPositionItem[] = []
+  const len = trackPositions.length
+  for (let i = 0; i < len; i += 1) {
+    console.log(i)
+    const track = trackPositions[i]
+
+    if (i === 0) {
+      positions.push({
+        type: TrackPosition.Over,
+        top: listTop,
+      })
+    }
+
+    positions.push(
+      {
+        type: track.type,
+        top: track.rect.top,
+      },
+      {
+        type: TrackPosition.Interval,
+        top: track.rect.bottom + 1,
+      },
+    )
+
+    if (i === len - 1) {
+      positions.push({
+        type: TrackPosition.Under,
+        top: track.rect.bottom + 1,
+      })
+    }
+  }
+
+  dragStore.setPositions(positions)
+})
 </script>
 
 <template>
@@ -85,9 +146,10 @@ function onClick({ clientX }: MouseEvent) {
     <TimelineCursor />
 
     <div class="track-content" @click="onClick">
-      <div class="track-list-container">
+      <div class="track-list-container" ref="trackListContainerRef">
         <component
           v-for="(track, i) in trackList"
+          ref="trackRefs"
           :key="i"
           class="track-container"
           :is="track.componentName"

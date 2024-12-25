@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import type { MainTrack } from '@/types'
+import { TrackPosition, type MainTrack } from '@/types'
 
 defineProps<{
   track: MainTrack
 }>()
+
+defineExpose<{
+  position: TrackPosition.Main
+}>({
+  position: TrackPosition.Main,
+})
 </script>
 
 <template>

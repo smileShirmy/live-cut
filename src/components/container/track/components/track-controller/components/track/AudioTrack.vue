@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import type { AudioTrack } from '@/types'
+import { TrackPosition, type AudioTrack } from '@/types'
 
 defineProps<{
   track: AudioTrack
 }>()
+
+defineExpose<{
+  position: TrackPosition.Audio
+}>({
+  position: TrackPosition.Audio,
+})
 </script>
 
 <template>
