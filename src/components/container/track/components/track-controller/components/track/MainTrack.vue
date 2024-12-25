@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { TrackPosition, type MainTrack } from '@/types'
+import { TrackPosition } from '@/types/drag'
+import { type MainTrack } from '@/types/track'
 
 defineProps<{
   track: MainTrack

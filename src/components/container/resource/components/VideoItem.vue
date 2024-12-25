@@ -1,13 +1,18 @@
 <script lang="ts" setup>
 import { useDragStore } from '@/stores/drag'
+import type { VideoResource } from '@/types/resource'
 import { ref } from 'vue'
+
+const props = defineProps<{
+  item: VideoResource
+}>()
 
 const dragStore = useDragStore()
 const videoItemRef = ref<HTMLElement>()
 
 function onDragStart(e: MouseEvent | TouchEvent) {
   if (videoItemRef.value) {
-    dragStore.onDragStart(e, videoItemRef.value)
+    dragStore.onDragStart(e, videoItemRef.value, props.item)
   }
 }
 </script>
@@ -22,7 +27,7 @@ function onDragStart(e: MouseEvent | TouchEvent) {
     <div class="video-cover-wrapper">
       <img class="video-cover" src="" />
     </div>
-    <h5 class="video-name">video name</h5>
+    <h5 class="video-name">{{ props.item.name }}</h5>
   </div>
 </template>
 

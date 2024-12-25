@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { TrackPosition, type CommonTrack } from '@/types'
+import { TrackPosition } from '@/types/drag'
+import { type CommonTrack } from '@/types/track'
 
 defineProps<{
   track: CommonTrack

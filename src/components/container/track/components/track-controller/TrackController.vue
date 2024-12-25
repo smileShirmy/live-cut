@@ -8,16 +8,11 @@ import CommonTrack from './components/track/CommonTrack.vue'
 import { usePlayerStore } from '@/stores/player'
 import { useTrackStore } from '@/stores/track'
 import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
-import {
-  TrackComponentName,
-  TrackPosition,
-  type Track,
-  type TrackComponent,
-  type TrackPositionItem,
-} from '@/types'
+import { TrackComponentName, type Track, type TrackComponent } from '@/types/track'
 import { ref, useTemplateRef } from 'vue'
 import { Events, emitter } from '@/services/mitt/emitter'
 import { useDragStore } from '@/stores/drag'
+import { TrackPosition, type TrackPositionData } from '@/types/drag'
 
 defineOptions({
   components: {
@@ -29,39 +24,7 @@ defineOptions({
 
 const trackList = ref<Track[]>([
   {
-    componentName: TrackComponentName.COMMON_TRACK,
-    itemList: [],
-  },
-  {
-    componentName: TrackComponentName.COMMON_TRACK,
-    itemList: [],
-  },
-  {
-    componentName: TrackComponentName.COMMON_TRACK,
-    itemList: [],
-  },
-  {
-    componentName: TrackComponentName.COMMON_TRACK,
-    itemList: [],
-  },
-  {
-    componentName: TrackComponentName.COMMON_TRACK,
-    itemList: [],
-  },
-  {
-    componentName: TrackComponentName.COMMON_TRACK,
-    itemList: [],
-  },
-  {
-    componentName: TrackComponentName.COMMON_TRACK,
-    itemList: [],
-  },
-  {
     componentName: TrackComponentName.MAIN_TRACK,
-    itemList: [],
-  },
-  {
-    componentName: TrackComponentName.AUDIO_TRACK,
     itemList: [],
   },
 ])
@@ -104,10 +67,9 @@ emitter.on(Events.INIT_TRACK_POSITIONS, () => {
   trackPositions = trackPositions.sort((a, b) => a.rect.top - b.rect.top)
 
   const { top: listTop } = trackListContainerRef.value.getBoundingClientRect()
-  const positions: TrackPositionItem[] = []
+  const positions: TrackPositionData[] = []
   const len = trackPositions.length
   for (let i = 0; i < len; i += 1) {
-    console.log(i)
     const track = trackPositions[i]
 
     if (i === 0) {

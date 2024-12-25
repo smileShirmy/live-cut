@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 import { useDragStore } from '@/stores/drag'
+import type { TextResource } from '@/types/resource'
 import { ref } from 'vue'
+
+const props = defineProps<{
+  item: TextResource
+}>()
 
 const dragStore = useDragStore()
 const textItemRef = ref<HTMLElement>()
@@ -19,7 +24,7 @@ function onDragStart(e: MouseEvent | TouchEvent) {
     @mousedown="onDragStart"
     @touchstart="onDragStart"
   >
-    text
+    {{ props.item.name }}
   </div>
 </template>
 

@@ -1,10 +1,28 @@
 <script setup lang="ts">
+import { emitter, Events } from '@/services/mitt/emitter'
 import ControlBar from './components/control-bar/ControlBar.vue'
 import TrackController from './components/track-controller/TrackController.vue'
+import { useTemplateRef } from 'vue'
+import { useDragStore } from '@/stores/drag'
+import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
+
+const dragStore = useDragStore()
+
+const trackContainerRef = useTemplateRef<HTMLDivElement>('trackContainerRef')
+
+emitter.on(Events.INIT_DRAG_RECT, () => {
+  if (!trackContainerRef.value) return
+
+  const { top, left } = trackContainerRef.value.getBoundingClientRect()
+  dragStore.setDropArea({
+    top,
+    left: left + TRACK_RESOURCE_OFFSET_LEFT,
+  })
+})
 </script>
 
 <template>
-  <div class="track-container" :style="{ minHeight: '210px' }">
+  <div class="track-container" ref="trackContainerRef" :style="{ minHeight: '210px' }">
     <ControlBar />
     <TrackController />
   </div>

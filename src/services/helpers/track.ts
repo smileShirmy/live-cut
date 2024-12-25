@@ -4,7 +4,7 @@ import {
   type CommonTrackType,
   type MainTrackType,
   type TrackComponent,
-} from '@/types'
+} from '@/types/track'
 
 export const isMainTrackComp = (comp: TrackComponent): comp is MainTrackType =>
   comp.track.componentName === TrackComponentName.MAIN_TRACK

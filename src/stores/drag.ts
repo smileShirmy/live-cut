@@ -1,6 +1,7 @@
 import { cloneElement } from '@/services/helpers/dom'
 import { emitter, Events } from '@/services/mitt/emitter'
-import type { TrackPositionItem } from '@/types'
+import type { DropArea, TrackPositionData } from '@/types/drag'
+import type { ResourceData } from '@/types/resource'
 import { defineStore } from 'pinia'
 
 function getPosition(event: MouseEvent | TouchEvent): { x: number; y: number } {
@@ -11,21 +12,27 @@ function getPosition(event: MouseEvent | TouchEvent): { x: number; y: number } {
 export const useDragStore = defineStore('drag', () => {
   let dragging = false
   let clone: HTMLElement | null = null
-  let positions: TrackPositionItem[] = []
+  let trackPositions: TrackPositionData[] = []
+  let dropArea: DropArea = { top: 0, left: 0 }
+  let dragData: ResourceData | null = null
 
-  function setPositions(items: TrackPositionItem[]) {
-    positions = items
+  function setPositions(items: TrackPositionData[]) {
+    trackPositions = items
+  }
+
+  function setDropArea(rect: DropArea) {
+    dropArea = rect
   }
 
   /**
    * 获取当前所处轨道在 y 轴上的位置信息
    */
-  function getTrackPositionItem(y: number) {
-    let target: TrackPositionItem | null = null
-    const len = positions.length
+  function getTrackPositionData(y: number) {
+    let target: TrackPositionData | null = null
+    const len = trackPositions.length
     for (let i = 0; i < len; i += 1) {
-      const cur = positions[i]
-      const next = positions[i + 1]
+      const cur = trackPositions[i]
+      const next = trackPositions[i + 1]
       if (y >= cur.top) {
         if (!next || y < next.top) {
           target = cur
@@ -55,14 +62,22 @@ export const useDragStore = defineStore('drag', () => {
   }
 
   function onDragging(event: MouseEvent | TouchEvent) {
-    if (dragging) {
-      const { x, y } = getPosition(event)
+    if (!dragging || !dragData) return
 
-      updateCloneStyle(x, y)
+    const { x, y } = getPosition(event)
 
-      const item = getTrackPositionItem(y)
-      console.log(item)
-    }
+    updateCloneStyle(x, y)
+
+    // const item = getTrackPositionData(y)
+    // if (item) {
+    //   switch (item.type) {
+    //     case value:
+    //       break
+
+    //     default:
+    //       break
+    //   }
+    // }
   }
 
   function onDragEnd() {
@@ -76,13 +91,20 @@ export const useDragStore = defineStore('drag', () => {
     window.removeEventListener('contextmenu', onDragEnd)
   }
 
-  function onDragStart(event: MouseEvent | TouchEvent, dragTarget: HTMLElement) {
+  function onDragStart(
+    event: MouseEvent | TouchEvent,
+    dragTarget: HTMLElement,
+    data: ResourceData,
+  ) {
     event.preventDefault()
 
     dragging = true
     appendClone(dragTarget)
 
+    dragData = data
+
     emitter.emit(Events.INIT_TRACK_POSITIONS)
+    emitter.emit(Events.INIT_DRAG_RECT)
 
     window.addEventListener('mousemove', onDragging)
     window.addEventListener('touchmove', onDragging)
@@ -94,5 +116,6 @@ export const useDragStore = defineStore('drag', () => {
   return {
     onDragStart,
     setPositions,
+    setDropArea,
   }
 })

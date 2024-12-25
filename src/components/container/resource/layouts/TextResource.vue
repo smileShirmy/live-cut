@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { DEFAULT_TEXT, DEFAULT_TEXT_FRAME_COUNT } from '@/config'
-import { ResourceType, type TextResource } from '@/types'
+import { DEFAULT_TEXT, DEFAULT_TEXT_DURATION } from '@/config'
 import TextItem from '../components/TextItem.vue'
 import { ref } from 'vue'
+import { ResourceType, type TextResource } from '@/types/resource'
 
 const defaultTextResource: TextResource = {
   type: ResourceType.TEXT,
   name: DEFAULT_TEXT,
-  frameCount: DEFAULT_TEXT_FRAME_COUNT,
+  duration: DEFAULT_TEXT_DURATION,
 }
 
 const list = ref<TextResource[]>([defaultTextResource])
@@ -16,7 +16,7 @@ const list = ref<TextResource[]>([defaultTextResource])
 <template>
   <ul class="s-resource-list">
     <li class="s-resource-item" v-for="(item, i) in list" :key="i">
-      <TextItem :data="item" />
+      <TextItem :item="item" />
     </li>
   </ul>
 </template>

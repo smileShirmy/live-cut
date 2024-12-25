@@ -4,9 +4,9 @@
 export const DEFAULT_TEXT = '默认文本'
 
 /**
- * 默认文本帧数
+ * 默认文本长度
  */
-export const DEFAULT_TEXT_FRAME_COUNT = 90
+export const DEFAULT_TEXT_DURATION = 90
 
 /**
  * 每秒帧数
