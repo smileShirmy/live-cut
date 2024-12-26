@@ -1,4 +1,11 @@
-import type { DragOptions, DropArea, TrackPositionData } from '@/types/drag'
+import {
+  DragStateType,
+  type AddToCurrentTrackDragState,
+  type AddToNewTrackDragState,
+  type DragOptions,
+  type DropArea,
+  type TrackPositionData,
+} from '@/types/drag'
 import mitt from 'mitt'
 import { emitter, Events } from '../mitt/emitter'
 import { cloneElement } from '../helpers/dom'
@@ -17,19 +24,22 @@ export abstract class BaseDrag {
   protected readonly dragStore = useDragStore()
   protected trackPositions: TrackPositionData[] = []
   protected dropArea: DropArea = { top: 0, left: 0 }
+  protected trackContentTop = 0
   protected dragging = true
 
   constructor(options: DragOptions) {
     this.startPointerEvent = options.startPointerEvent
     this.dragTarget = options.dragTarget
-    this.cloneDragTarget = cloneElement(options.dragTarget)
-    this.#appendCloneToBody()
+    this.cloneDragTarget = this.#cloneDragTarget(options.dragTarget)
 
     emitter.emit(Events.INIT_TRACK_POSITIONS, (data: TrackPositionData[]) => {
       this.trackPositions = data
     })
     emitter.emit(Events.INIT_DROP_AREA, (data: DropArea) => {
       this.dropArea = data
+    })
+    emitter.emit(Events.INIT_TRACK_CONTENT_TOP, (top: number) => {
+      this.trackContentTop = top
     })
   }
 
@@ -41,8 +51,10 @@ export abstract class BaseDrag {
 
   protected abstract onDragEnd: (e: PointerEvent) => void
 
-  #appendCloneToBody() {
-    document.body.appendChild(this.cloneDragTarget)
+  #cloneDragTarget(dragTarget: HTMLElement) {
+    const clone = cloneElement(dragTarget)
+    document.body.appendChild(clone)
+    return clone
   }
 
   protected updateCloneStyle(x: number, y: number) {
@@ -56,11 +68,15 @@ export abstract class BaseDrag {
   /**
    * 获取当前所处轨道在 y 轴上的位置信息
    */
-  protected getTrackPositionData(y: number) {
+  protected getTrackPosition(y: number) {
     let target: TrackPositionData | null = null
     const len = this.trackPositions.length
     for (let i = 0; i < len; i += 1) {
       const cur = this.trackPositions[i]
+      if (i === 0 && y < cur.top) {
+        target = cur
+        break
+      }
       const next = this.trackPositions[i + 1]
       if (y >= cur.top) {
         if (!next || y < next.top) {
@@ -69,6 +85,20 @@ export abstract class BaseDrag {
         }
       }
     }
-    return target
+    return target as TrackPositionData
+  }
+
+  protected updateAddToNewTrackState(dragState: Omit<AddToNewTrackDragState, 'type'>) {
+    this.dragStore.setDragState({
+      type: DragStateType.ADD_TO_NEW_TRACK,
+      ...dragState,
+    })
+  }
+
+  protected updateAddToCurrentTrackState(dragState: Omit<AddToCurrentTrackDragState, 'type'>) {
+    this.dragStore.setDragState({
+      type: DragStateType.ADD_TO_CURRENT_TRACK,
+      ...dragState,
+    })
   }
 }

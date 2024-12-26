@@ -1,4 +1,4 @@
-import type { DragOptions } from '@/types/drag'
+import { TrackPosition, type DragOptions } from '@/types/drag'
 import { BaseDrag } from './base-drag'
 
 export class DragCommon extends BaseDrag {
@@ -29,8 +29,18 @@ export class DragCommon extends BaseDrag {
 
     this.updateCloneStyle(clientX, clientY)
 
-    const data = this.getTrackPositionData(clientY)
-    console.log(data)
+    const position = this.getTrackPosition(clientY)
+
+    this.updateAddToNewTrackState({
+      top: position.top,
+    })
+
+    switch (position.type) {
+      case TrackPosition.Over:
+        break
+      default:
+        break
+    }
   }
 
   protected onDragEnd = () => {

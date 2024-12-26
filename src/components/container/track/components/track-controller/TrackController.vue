@@ -9,9 +9,10 @@ import { usePlayerStore } from '@/stores/player'
 import { useTrackStore } from '@/stores/track'
 import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
 import { TrackComponentName, type Track, type TrackComponent } from '@/types/track'
-import { ref, useTemplateRef } from 'vue'
+import { computed, ref, useTemplateRef, type ComputedRef, type CSSProperties } from 'vue'
 import { Events, emitter } from '@/services/mitt/emitter'
-import { TrackPosition, type TrackPositionData } from '@/types/drag'
+import { DragStateType, TrackPosition, type TrackPositionData } from '@/types/drag'
+import { useDragStore } from '@/stores/drag'
 
 defineOptions({
   components: {
@@ -30,10 +31,22 @@ const trackList = ref<Track[]>([
 
 const playerStore = usePlayerStore()
 const trackStore = useTrackStore()
+const dragStore = useDragStore()
 
 const trackControllerRef = useTemplateRef<HTMLDivElement>('trackControllerRef')
+const trackContentRef = useTemplateRef<HTMLDivElement>('trackContentRef')
 const trackRefs = useTemplateRef<TrackComponent[]>('trackRefs')
 const trackListContainerRef = useTemplateRef<HTMLDivElement>('trackListContainerRef')
+
+const addToNewTrackLineStyle: ComputedRef<CSSProperties> = computed(() => {
+  console.log(dragStore.dragState?.top)
+  if (dragStore.dragState && dragStore.dragState.type === DragStateType.ADD_TO_NEW_TRACK) {
+    return {
+      top: `${dragStore.dragState.top}px`,
+    }
+  }
+  return {}
+})
 
 function onClick({ clientX }: MouseEvent) {
   if (!trackControllerRef.value) return
@@ -98,6 +111,12 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
 
   set(positions)
 })
+
+emitter.on(Events.INIT_TRACK_CONTENT_TOP, (set) => {
+  if (!trackContentRef.value) return
+  const { top } = trackContentRef.value.getBoundingClientRect()
+  set(top)
+})
 </script>
 
 <template>
@@ -105,7 +124,7 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
     <TimelineRuler @click="onClick" />
     <TimelineCursor />
 
-    <div class="track-content" @click="onClick">
+    <div class="track-content" ref="trackContentRef" @click="onClick">
       <div class="track-list-container" ref="trackListContainerRef">
         <component
           v-for="(track, i) in trackList"
@@ -116,6 +135,8 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
           :track="track"
         ></component>
       </div>
+
+      <div class="add-to-new-track-line" :style="addToNewTrackLineStyle"></div>
     </div>
 
     <TrackScrollbar />
@@ -131,6 +152,7 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
   height: calc(100% - 30px);
 
   .track-content {
+    position: relative;
     box-sizing: border-box;
     height: calc(100% - 36px);
     overflow-x: hidden;
@@ -151,6 +173,15 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
     + .track-container {
       margin-top: 8px;
     }
+  }
+
+  .add-to-new-track-line {
+    position: absolute;
+    right: 0;
+    width: calc(100% - 80px);
+    height: 1px;
+    background-color: #7086e9;
+    pointer-events: none;
   }
 }
 </style>

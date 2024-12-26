@@ -52,3 +52,20 @@ export interface DragOptions {
   startPointerEvent: PointerEvent
   dragTarget: HTMLElement
 }
+
+export enum DragStateType {
+  ADD_TO_NEW_TRACK,
+  ADD_TO_CURRENT_TRACK,
+}
+
+export interface AddToNewTrackDragState {
+  type: DragStateType.ADD_TO_NEW_TRACK
+  top: number
+}
+
+export interface AddToCurrentTrackDragState {
+  type: DragStateType.ADD_TO_CURRENT_TRACK
+  top: number
+}
+
+export type DragState = AddToNewTrackDragState | AddToCurrentTrackDragState
