@@ -47,3 +47,8 @@ export interface DropArea {
   top: number
   left: number
 }
+
+export interface DragOptions {
+  startPointerEvent: PointerEvent
+  dragTarget: HTMLElement
+}

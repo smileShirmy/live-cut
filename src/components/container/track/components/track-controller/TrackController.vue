@@ -11,7 +11,6 @@ import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
 import { TrackComponentName, type Track, type TrackComponent } from '@/types/track'
 import { ref, useTemplateRef } from 'vue'
 import { Events, emitter } from '@/services/mitt/emitter'
-import { useDragStore } from '@/stores/drag'
 import { TrackPosition, type TrackPositionData } from '@/types/drag'
 
 defineOptions({
@@ -31,7 +30,6 @@ const trackList = ref<Track[]>([
 
 const playerStore = usePlayerStore()
 const trackStore = useTrackStore()
-const dragStore = useDragStore()
 
 const trackControllerRef = useTemplateRef<HTMLDivElement>('trackControllerRef')
 const trackRefs = useTemplateRef<TrackComponent[]>('trackRefs')
@@ -52,7 +50,7 @@ function onClick({ clientX }: MouseEvent) {
   playerStore.setCurrentFrame(currentFrame)
 }
 
-emitter.on(Events.INIT_TRACK_POSITIONS, () => {
+emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
   if (!trackRefs.value || !trackListContainerRef.value) {
     return
   }
@@ -98,7 +96,7 @@ emitter.on(Events.INIT_TRACK_POSITIONS, () => {
     }
   }
 
-  dragStore.setPositions(positions)
+  set(positions)
 })
 </script>
 

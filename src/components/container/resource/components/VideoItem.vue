@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useDragStore } from '@/stores/drag'
+import { DragCommon } from '@/services/drag-drop/drag-common'
 import type { VideoResource } from '@/types/resource'
 import { ref } from 'vue'
 
@@ -7,23 +7,21 @@ const props = defineProps<{
   item: VideoResource
 }>()
 
-const dragStore = useDragStore()
 const videoItemRef = ref<HTMLElement>()
 
-function onDragStart(e: MouseEvent | TouchEvent) {
-  if (videoItemRef.value) {
-    dragStore.onDragStart(e, videoItemRef.value, props.item)
-  }
+function onDragStart(e: PointerEvent) {
+  e.preventDefault()
+  if (!videoItemRef.value) return
+
+  DragCommon.dragStart({
+    startPointerEvent: e,
+    dragTarget: videoItemRef.value,
+  })
 }
 </script>
 
 <template>
-  <div
-    ref="videoItemRef"
-    class="video-item-container"
-    @mousedown="onDragStart"
-    @touchstart="onDragStart"
-  >
+  <div ref="videoItemRef" class="video-item-container" @pointerdown="onDragStart">
     <div class="video-cover-wrapper">
       <img class="video-cover" src="" />
     </div>
