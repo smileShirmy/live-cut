@@ -46,16 +46,22 @@ const addToNewTrackLineStyle: ComputedRef<CSSProperties> = computed(() => {
       top: `${dragStore.dragState.top}px`,
     }
   }
-  return {}
+  return { display: 'none' }
 })
 
 const addToCurrentTrackRectStyle: ComputedRef<CSSProperties> = computed(() => {
   if (dragStore.dragState && dragStore.dragState.type === DragStateType.ADD_TO_CURRENT_TRACK) {
-    return {
-      top: `${dragStore.dragState.top}px`,
+    const { top, left, width, height } = dragStore.dragState
+    if (left > TRACK_RESOURCE_OFFSET_LEFT) {
+      return {
+        top: `${top}px`,
+        left: `${left}px`,
+        width: `${width}px`,
+        height: `${height}px`,
+      }
     }
   }
-  return {}
+  return { display: 'none' }
 })
 
 function onClick({ clientX }: MouseEvent) {
@@ -136,10 +142,10 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
   set(positions)
 })
 
-emitter.on(Events.INIT_TRACK_CONTENT_TOP, (set) => {
+emitter.on(Events.INIT_TRACK_CONTENT_RECT, (set) => {
   if (!trackContentRef.value) return
-  const { top } = trackContentRef.value.getBoundingClientRect()
-  set(top)
+  const rect = trackContentRef.value.getBoundingClientRect()
+  set(rect)
 })
 </script>
 
@@ -218,6 +224,7 @@ emitter.on(Events.INIT_TRACK_CONTENT_TOP, (set) => {
   }
 
   .add-to-current-track-rect {
+    box-sizing: border-box;
     position: absolute;
     background-color: rgba(#7086e9, 0.2);
     border: 2px dashed rgba(#7086e9, 0.5);

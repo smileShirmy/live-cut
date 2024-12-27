@@ -50,9 +50,13 @@ export interface DropArea {
   left: number
 }
 
-export interface DragOptions {
+export interface BaseDragOptions {
   startPointerEvent: PointerEvent
   dragTarget: HTMLElement
+}
+
+export interface DragOptions<T> extends BaseDragOptions {
+  dragResource: T
 }
 
 export enum DragStateType {
@@ -68,6 +72,8 @@ export interface AddToNewTrackDragState {
 export interface AddToCurrentTrackDragState {
   type: DragStateType.ADD_TO_CURRENT_TRACK
   top: number
+  left: number
+  width: number
   height: number
 }
 

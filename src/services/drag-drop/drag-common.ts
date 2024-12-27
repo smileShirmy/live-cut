@@ -1,15 +1,24 @@
-import { TrackPosition, type DragOptions, type TrackPositionData } from '@/types/drag'
+import {
+  TrackPosition,
+  type DragOptions,
+  type MainTrackPosition,
+  type TrackPositionData,
+} from '@/types/drag'
 import { BaseDrag } from './base-drag'
 import { INTERVAL_TOP_OFFSET } from '@/config'
+import { warn } from 'vue'
+import type { VideoResource } from '@/types/resource'
 
 export class DragCommon extends BaseDrag {
-  constructor(options: DragOptions) {
-    super(options)
+  #dragResource: VideoResource
 
+  constructor(options: DragOptions<VideoResource>) {
+    super(options)
+    this.#dragResource = options.dragResource
     this.addListener()
   }
 
-  static dragStart(options: DragOptions) {
+  static dragStart(options: DragOptions<VideoResource>) {
     return new DragCommon(options)
   }
 
@@ -30,7 +39,7 @@ export class DragCommon extends BaseDrag {
 
     this.updateCloneStyle(clientX, clientY)
 
-    const position = this.getTrackPosition(clientY)
+    const { position, main } = this.getTrackPosition(clientY)
 
     switch (position.type) {
       case TrackPosition.Over:
@@ -38,28 +47,51 @@ export class DragCommon extends BaseDrag {
         break
       case TrackPosition.Common:
       case TrackPosition.Main:
-        this.#trackHandler(position)
+        this.#trackHandler(position, clientX)
         break
       case TrackPosition.Interval:
+        this.#intervalHandler(position, main)
         break
       case TrackPosition.Audio:
       case TrackPosition.Under:
+        this.#underHandler(main)
         break
       default:
+        warn('has unhandled type')
         break
     }
   }
 
   #overHandler(position: TrackPositionData) {
     this.updateAddToNewTrackState({
-      top: position.bottom - this.trackContentTop - INTERVAL_TOP_OFFSET,
+      top: this.toContentTop(position.bottom) - INTERVAL_TOP_OFFSET,
     })
   }
 
-  #trackHandler(cur: TrackPositionData) {
+  #trackHandler(position: TrackPositionData, clientX: number) {
     this.updateAddToCurrentTrackState({
-      top: cur.top,
-      height: cur.height,
+      top: this.toContentTop(position.top),
+      left: this.toContentLeft(clientX),
+      width: this.trackStore.durationToWidth(this.#dragResource.duration),
+      height: position.height,
+    })
+  }
+
+  #intervalHandler(position: TrackPositionData, main: MainTrackPosition) {
+    if (position.top < main.bottom) {
+      this.updateAddToNewTrackState({
+        top: this.toContentTop(main.bottom) + INTERVAL_TOP_OFFSET,
+      })
+    } else {
+      this.updateAddToNewTrackState({
+        top: this.toContentTop(position.top) + INTERVAL_TOP_OFFSET,
+      })
+    }
+  }
+
+  #underHandler(main: MainTrackPosition) {
+    this.updateAddToNewTrackState({
+      top: this.toContentTop(main.bottom) + INTERVAL_TOP_OFFSET,
     })
   }
 

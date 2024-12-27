@@ -16,6 +16,7 @@ function onDragStart(e: PointerEvent) {
   DragCommon.dragStart({
     startPointerEvent: e,
     dragTarget: videoItemRef.value,
+    dragResource: props.item,
   })
 }
 </script>

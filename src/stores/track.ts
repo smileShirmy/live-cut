@@ -1,7 +1,8 @@
-import { DEFAULT_MAX_FRAME_COUNT, MAX_FRAME_WIDTH } from '@/config'
+import { DEFAULT_MAX_FRAME_COUNT, FPS, MAX_FRAME_WIDTH } from '@/config'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { usePlayerStore } from './player'
+import type { Millisecond } from '@/types/general'
 
 export const useTrackStore = defineStore('track', () => {
   const playerStore = usePlayerStore()
@@ -92,6 +93,11 @@ export const useTrackStore = defineStore('track', () => {
     scrollLeft.value = left
   }
 
+  function durationToWidth(duration: Millisecond) {
+    const frameCount = (duration / 1000) * FPS
+    return frameCount * frameWidth.value
+  }
+
   return {
     scaleLevel,
     maxFrameCount,
@@ -111,5 +117,7 @@ export const useTrackStore = defineStore('track', () => {
     setTimelineRulerWidth,
     setScrollbarContainerWidth,
     setScrollLeft,
+
+    durationToWidth,
   }
 })
