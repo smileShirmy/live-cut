@@ -73,11 +73,11 @@ export abstract class BaseDrag {
     const len = this.trackPositions.length
     for (let i = 0; i < len; i += 1) {
       const cur = this.trackPositions[i]
+      const next = this.trackPositions[i + 1] ?? null
       if (i === 0 && y < cur.top) {
         target = cur
         break
       }
-      const next = this.trackPositions[i + 1]
       if (y >= cur.top) {
         if (!next || y < next.top) {
           target = cur

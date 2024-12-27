@@ -38,9 +38,19 @@ const trackContentRef = useTemplateRef<HTMLDivElement>('trackContentRef')
 const trackRefs = useTemplateRef<TrackComponent[]>('trackRefs')
 const trackListContainerRef = useTemplateRef<HTMLDivElement>('trackListContainerRef')
 
+const dragStateType = computed(() => dragStore.dragState?.type ?? null)
+
 const addToNewTrackLineStyle: ComputedRef<CSSProperties> = computed(() => {
-  console.log(dragStore.dragState?.top)
   if (dragStore.dragState && dragStore.dragState.type === DragStateType.ADD_TO_NEW_TRACK) {
+    return {
+      top: `${dragStore.dragState.top}px`,
+    }
+  }
+  return {}
+})
+
+const addToCurrentTrackRectStyle: ComputedRef<CSSProperties> = computed(() => {
+  if (dragStore.dragState && dragStore.dragState.type === DragStateType.ADD_TO_CURRENT_TRACK) {
     return {
       top: `${dragStore.dragState.top}px`,
     }
@@ -77,34 +87,48 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
   }
   trackPositions = trackPositions.sort((a, b) => a.rect.top - b.rect.top)
 
-  const { top: listTop } = trackListContainerRef.value.getBoundingClientRect()
+  const {
+    top: listTop,
+    height: listHeight,
+    bottom: listBottom,
+  } = trackListContainerRef.value.getBoundingClientRect()
   const positions: TrackPositionData[] = []
   const len = trackPositions.length
   for (let i = 0; i < len; i += 1) {
-    const track = trackPositions[i]
+    const cur = trackPositions[i]
+    const next = trackPositions[i + 1]
 
     if (i === 0) {
       positions.push({
         type: TrackPosition.Over,
         top: listTop,
+        height: listHeight,
+        bottom: cur.rect.top,
       })
     }
 
-    positions.push(
-      {
-        type: track.type,
-        top: track.rect.top,
-      },
-      {
+    positions.push({
+      type: cur.type,
+      top: cur.rect.top,
+      height: cur.rect.height,
+      bottom: cur.rect.bottom,
+    })
+
+    if (i < len - 1) {
+      positions.push({
         type: TrackPosition.Interval,
-        top: track.rect.bottom + 1,
-      },
-    )
+        top: cur.rect.bottom,
+        height: next.rect.top - cur.rect.bottom,
+        bottom: next.rect.top,
+      })
+    }
 
     if (i === len - 1) {
       positions.push({
         type: TrackPosition.Under,
-        top: track.rect.bottom + 1,
+        top: cur.rect.bottom,
+        height: listBottom - cur.rect.bottom,
+        bottom: listBottom,
       })
     }
   }
@@ -136,7 +160,16 @@ emitter.on(Events.INIT_TRACK_CONTENT_TOP, (set) => {
         ></component>
       </div>
 
-      <div class="add-to-new-track-line" :style="addToNewTrackLineStyle"></div>
+      <div
+        v-show="dragStateType === DragStateType.ADD_TO_NEW_TRACK"
+        class="add-to-new-track-line"
+        :style="addToNewTrackLineStyle"
+      ></div>
+      <div
+        v-show="dragStateType === DragStateType.ADD_TO_CURRENT_TRACK"
+        class="add-to-current-track-rect"
+        :style="addToCurrentTrackRectStyle"
+      ></div>
     </div>
 
     <TrackScrollbar />
@@ -181,6 +214,14 @@ emitter.on(Events.INIT_TRACK_CONTENT_TOP, (set) => {
     width: calc(100% - 80px);
     height: 1px;
     background-color: #7086e9;
+    pointer-events: none;
+  }
+
+  .add-to-current-track-rect {
+    position: absolute;
+    background-color: rgba(#7086e9, 0.2);
+    border: 2px dashed rgba(#7086e9, 0.5);
+    border-radius: 4px;
     pointer-events: none;
   }
 }

@@ -32,3 +32,8 @@ export const TRACK_RESOURCE_OFFSET_LEFT = 80
  * 时间刻度光标超过控制范围时滚动条自动滚动速度
  */
 export const AUTO_SCROLL_SPEED = 50
+
+/**
+ * 轨道间隙中间值 8 / 2 = 4
+ */
+export const INTERVAL_TOP_OFFSET = 4

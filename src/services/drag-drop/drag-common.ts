@@ -1,5 +1,6 @@
-import { TrackPosition, type DragOptions } from '@/types/drag'
+import { TrackPosition, type DragOptions, type TrackPositionData } from '@/types/drag'
 import { BaseDrag } from './base-drag'
+import { INTERVAL_TOP_OFFSET } from '@/config'
 
 export class DragCommon extends BaseDrag {
   constructor(options: DragOptions) {
@@ -31,16 +32,35 @@ export class DragCommon extends BaseDrag {
 
     const position = this.getTrackPosition(clientY)
 
-    this.updateAddToNewTrackState({
-      top: position.top,
-    })
-
     switch (position.type) {
       case TrackPosition.Over:
+        this.#overHandler(position)
+        break
+      case TrackPosition.Common:
+      case TrackPosition.Main:
+        this.#trackHandler(position)
+        break
+      case TrackPosition.Interval:
+        break
+      case TrackPosition.Audio:
+      case TrackPosition.Under:
         break
       default:
         break
     }
+  }
+
+  #overHandler(position: TrackPositionData) {
+    this.updateAddToNewTrackState({
+      top: position.bottom - this.trackContentTop - INTERVAL_TOP_OFFSET,
+    })
+  }
+
+  #trackHandler(cur: TrackPositionData) {
+    this.updateAddToCurrentTrackState({
+      top: cur.top,
+      height: cur.height,
+    })
   }
 
   protected onDragEnd = () => {

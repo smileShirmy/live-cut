@@ -9,18 +9,20 @@ export enum TrackPosition {
 
 export interface BaseTrackPosition {
   top: number
+  height: number
+  bottom: number
 }
 
 export interface OverTrackPosition extends BaseTrackPosition {
   type: TrackPosition.Over
 }
 
-export interface MainTrackPosition extends BaseTrackPosition {
-  type: TrackPosition.Main
-}
-
 export interface CommonTrackPosition extends BaseTrackPosition {
   type: TrackPosition.Common
+}
+
+export interface MainTrackPosition extends BaseTrackPosition {
+  type: TrackPosition.Main
 }
 
 export interface AudioTrackPosition extends BaseTrackPosition {
@@ -66,6 +68,7 @@ export interface AddToNewTrackDragState {
 export interface AddToCurrentTrackDragState {
   type: DragStateType.ADD_TO_CURRENT_TRACK
   top: number
+  height: number
 }
 
 export type DragState = AddToNewTrackDragState | AddToCurrentTrackDragState
