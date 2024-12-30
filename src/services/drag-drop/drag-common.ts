@@ -57,7 +57,7 @@ export class DragCommon extends BaseDrag {
         this.#underHandler(main)
         break
       default:
-        warn('has unhandled type')
+        warn('has unhandled position type')
         break
     }
   }
