@@ -1,4 +1,4 @@
-import type { DragState } from '@/types/drag'
+import { type DragState } from '@/types/drag'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

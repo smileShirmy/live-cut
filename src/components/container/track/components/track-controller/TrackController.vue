@@ -8,8 +8,8 @@ import CommonTrack from './components/track/CommonTrack.vue'
 import { usePlayerStore } from '@/stores/player'
 import { useTrackStore } from '@/stores/track'
 import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
-import { TrackComponentName, type Track, type TrackComponent } from '@/types/track'
-import { computed, ref, useTemplateRef, type ComputedRef, type CSSProperties } from 'vue'
+import { TrackComponentName, type TrackComponent } from '@/types/track'
+import { computed, useTemplateRef, type ComputedRef, type CSSProperties } from 'vue'
 import { Events, emitter } from '@/services/mitt/emitter'
 import { DragStateType, TrackPosition, type TrackPositionData } from '@/types/drag'
 import { useDragStore } from '@/stores/drag'
@@ -21,13 +21,6 @@ defineOptions({
     [TrackComponentName.AUDIO_TRACK]: AudioTrack,
   },
 })
-
-const trackList = ref<Track[]>([
-  {
-    componentName: TrackComponentName.MAIN_TRACK,
-    itemList: [],
-  },
-])
 
 const playerStore = usePlayerStore()
 const trackStore = useTrackStore()
@@ -84,7 +77,10 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
     return
   }
 
-  let trackPositions: { type: TrackPosition; rect: DOMRect }[] = []
+  let trackPositions: {
+    type: TrackPosition.Main | TrackPosition.Audio | TrackPosition.Common
+    rect: DOMRect
+  }[] = []
   for (const track of trackRefs.value) {
     trackPositions.push({
       type: track.position,
@@ -118,6 +114,7 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
       top: cur.rect.top,
       height: cur.rect.height,
       bottom: cur.rect.bottom,
+      index: i,
     })
 
     if (i < len - 1) {
@@ -126,6 +123,7 @@ emitter.on(Events.INIT_TRACK_POSITIONS, (set) => {
         top: cur.rect.bottom,
         height: next.rect.top - cur.rect.bottom,
         bottom: next.rect.top,
+        insertIndex: i + 1,
       })
     }
 
@@ -157,7 +155,7 @@ emitter.on(Events.INIT_TRACK_CONTENT_RECT, (set) => {
     <div class="track-content" ref="trackContentRef" @click="onClick">
       <div class="track-list-container" ref="trackListContainerRef">
         <component
-          v-for="(track, i) in trackList"
+          v-for="(track, i) in trackStore.trackList"
           ref="trackRefs"
           :key="i"
           class="track-container"

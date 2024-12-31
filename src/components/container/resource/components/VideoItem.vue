@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { DragCommon } from '@/services/drag-drop/drag-common'
+import { VideoTrackItem } from '@/services/track-item/video-track-item'
 import type { VideoResource } from '@/types/resource'
 import { ref } from 'vue'
 
@@ -16,7 +17,7 @@ function onDragStart(e: PointerEvent) {
   DragCommon.dragStart({
     startPointerEvent: e,
     dragTarget: videoItemRef.value,
-    dragResource: props.item,
+    trackItem: VideoTrackItem.create(props.item),
   })
 }
 </script>

@@ -19,18 +19,22 @@ export interface OverTrackPosition extends BaseTrackPosition {
 
 export interface CommonTrackPosition extends BaseTrackPosition {
   type: TrackPosition.Common
+  index: number
 }
 
 export interface MainTrackPosition extends BaseTrackPosition {
   type: TrackPosition.Main
+  index: number
 }
 
 export interface AudioTrackPosition extends BaseTrackPosition {
   type: TrackPosition.Audio
+  index: number
 }
 
 export interface IntervalTrackPosition extends BaseTrackPosition {
   type: TrackPosition.Interval
+  insertIndex: number
 }
 
 export interface UnderTrackPosition extends BaseTrackPosition {
@@ -56,7 +60,7 @@ export interface BaseDragOptions {
 }
 
 export interface DragOptions<T> extends BaseDragOptions {
-  dragResource: T
+  trackItem: T
 }
 
 export enum DragStateType {
@@ -67,6 +71,7 @@ export enum DragStateType {
 export interface AddToNewTrackDragState {
   type: DragStateType.ADD_TO_NEW_TRACK
   top: number
+  insertIndex: number
 }
 
 export interface AddToCurrentTrackDragState {
@@ -75,6 +80,7 @@ export interface AddToCurrentTrackDragState {
   left: number
   width: number
   height: number
+  trackIndex: number
 }
 
 export type DragState = AddToNewTrackDragState | AddToCurrentTrackDragState

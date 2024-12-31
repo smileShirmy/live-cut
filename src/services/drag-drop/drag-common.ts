@@ -1,25 +1,30 @@
 import {
+  DragStateType,
   TrackPosition,
+  type AddToCurrentTrackDragState,
+  type AddToNewTrackDragState,
+  type CommonTrackPosition,
   type DragOptions,
+  type IntervalTrackPosition,
   type MainTrackPosition,
-  type TrackPositionData,
+  type OverTrackPosition,
 } from '@/types/drag'
 import { BaseDrag } from './base-drag'
 import { INTERVAL_TOP_OFFSET } from '@/config'
 import { warn } from 'vue'
-import type { VideoResource } from '@/types/resource'
+import type { VideoTrackItem } from '../track-item/video-track-item'
 
 export class DragCommon extends BaseDrag {
-  #dragResource: VideoResource
+  #trackItem: VideoTrackItem
 
-  constructor(options: DragOptions<VideoResource>) {
+  constructor(options: DragOptions<VideoTrackItem>) {
     super(options)
-    this.#dragResource = options.dragResource
+    this.#trackItem = options.trackItem
     this.addListener()
   }
 
-  static dragStart(options: DragOptions<VideoResource>) {
-    return new DragCommon(options)
+  static dragStart(...args: ConstructorParameters<typeof DragCommon>) {
+    return new DragCommon(...args)
   }
 
   protected addListener() {
@@ -62,42 +67,68 @@ export class DragCommon extends BaseDrag {
     }
   }
 
-  #overHandler(position: TrackPositionData) {
+  #overHandler(position: OverTrackPosition) {
     this.updateAddToNewTrackState({
-      top: this.toContentTop(position.bottom) - INTERVAL_TOP_OFFSET,
+      top: this.inContentTop(position.bottom) - INTERVAL_TOP_OFFSET,
+      insertIndex: 0,
     })
   }
 
-  #trackHandler(position: TrackPositionData, clientX: number) {
+  #trackHandler(position: MainTrackPosition | CommonTrackPosition, clientX: number) {
     this.updateAddToCurrentTrackState({
-      top: this.toContentTop(position.top),
-      left: this.toContentLeft(clientX),
-      width: this.trackStore.durationToWidth(this.#dragResource.duration),
+      top: this.inContentTop(position.top),
+      left: this.inContentLeft(clientX),
+      width: this.trackStore.durationToWidth(this.#trackItem.duration),
       height: position.height,
+      trackIndex: position.index,
     })
   }
 
-  #intervalHandler(position: TrackPositionData, main: MainTrackPosition) {
+  #intervalHandler(position: IntervalTrackPosition, main: MainTrackPosition) {
     if (position.top < main.bottom) {
       this.updateAddToNewTrackState({
-        top: this.toContentTop(main.bottom) + INTERVAL_TOP_OFFSET,
+        top: this.inContentTop(main.bottom) + INTERVAL_TOP_OFFSET,
+        insertIndex: position.insertIndex,
       })
     } else {
       this.updateAddToNewTrackState({
-        top: this.toContentTop(position.top) + INTERVAL_TOP_OFFSET,
+        top: this.inContentTop(position.top) + INTERVAL_TOP_OFFSET,
+        insertIndex: position.insertIndex,
       })
     }
   }
 
   #underHandler(main: MainTrackPosition) {
     this.updateAddToNewTrackState({
-      top: this.toContentTop(main.bottom) + INTERVAL_TOP_OFFSET,
+      top: this.inContentTop(main.bottom) + INTERVAL_TOP_OFFSET,
+      insertIndex: main.index + 1,
     })
   }
 
   protected onDragEnd = () => {
+    if (this.dragStore.dragState) {
+      switch (this.dragStore.dragState.type) {
+        case DragStateType.ADD_TO_CURRENT_TRACK:
+          this.#addToCurrentTrack(this.dragStore.dragState)
+          break
+        case DragStateType.ADD_TO_NEW_TRACK:
+          this.#addToNewTrack(this.dragStore.dragState)
+          break
+        default:
+          break
+      }
+    }
+
     this.cloneDragTarget.remove()
     this.dragging = false
     this.removeListener()
+  }
+
+  #addToCurrentTrack(dragState: AddToCurrentTrackDragState) {
+    this.trackStore.trackList[dragState.trackIndex].addItem(this.#trackItem)
+  }
+
+  #addToNewTrack(dragState: AddToNewTrackDragState) {
+    //
   }
 }

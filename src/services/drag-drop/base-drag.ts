@@ -99,11 +99,11 @@ export abstract class BaseDrag {
     }
   }
 
-  protected toContentTop(top: number) {
+  protected inContentTop(top: number) {
     return top - this.trackContentRect.top
   }
 
-  protected toContentLeft(left: number) {
+  protected inContentLeft(left: number) {
     return left - this.trackContentRect.left
   }
 
