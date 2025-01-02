@@ -44,22 +44,22 @@ export class DragCommon extends BaseDrag {
 
     this.updateCloneStyle(clientX, clientY)
 
-    const { position, main } = this.getTrackPosition(clientY)
+    const position = this.getTrackPosition(clientY)
 
     switch (position.type) {
       case TrackPosition.Over:
-        this.#overHandler(position)
+        this.#overHandler(position, clientX)
         break
       case TrackPosition.Common:
       case TrackPosition.Main:
         this.#trackHandler(position, clientX)
         break
       case TrackPosition.Interval:
-        this.#intervalHandler(position, main)
+        this.#intervalHandler(position, this.mainTrackPosition, clientX)
         break
       case TrackPosition.Audio:
       case TrackPosition.Under:
-        this.#underHandler(main)
+        this.#underHandler(this.mainTrackPosition, clientX)
         break
       default:
         warn('has unhandled position type')
@@ -67,9 +67,10 @@ export class DragCommon extends BaseDrag {
     }
   }
 
-  #overHandler(position: OverTrackPosition) {
+  #overHandler(position: OverTrackPosition, clientX: number) {
     this.updateAddToNewTrackState({
       top: this.inContentTop(position.bottom) - INTERVAL_TOP_OFFSET,
+      left: this.inContentLeft(clientX),
       insertIndex: 0,
     })
   }
@@ -84,23 +85,26 @@ export class DragCommon extends BaseDrag {
     })
   }
 
-  #intervalHandler(position: IntervalTrackPosition, main: MainTrackPosition) {
+  #intervalHandler(position: IntervalTrackPosition, main: MainTrackPosition, clientX: number) {
     if (position.top < main.bottom) {
       this.updateAddToNewTrackState({
         top: this.inContentTop(main.bottom) + INTERVAL_TOP_OFFSET,
+        left: this.inContentLeft(clientX),
         insertIndex: position.insertIndex,
       })
     } else {
       this.updateAddToNewTrackState({
         top: this.inContentTop(position.top) + INTERVAL_TOP_OFFSET,
+        left: this.inContentLeft(clientX),
         insertIndex: position.insertIndex,
       })
     }
   }
 
-  #underHandler(main: MainTrackPosition) {
+  #underHandler(main: MainTrackPosition, clientX: number) {
     this.updateAddToNewTrackState({
       top: this.inContentTop(main.bottom) + INTERVAL_TOP_OFFSET,
+      left: this.inContentLeft(clientX),
       insertIndex: main.index + 1,
     })
   }
@@ -119,16 +123,19 @@ export class DragCommon extends BaseDrag {
       }
     }
 
+    this.dragStore.setDragState(null)
     this.cloneDragTarget.remove()
     this.dragging = false
     this.removeListener()
   }
 
   #addToCurrentTrack(dragState: AddToCurrentTrackDragState) {
+    const startFrame = this.inContentLeftToFrame(dragState.left)
+    this.#trackItem.setStartFrame(startFrame)
     this.trackStore.trackList[dragState.trackIndex].addItem(this.#trackItem)
   }
 
   #addToNewTrack(dragState: AddToNewTrackDragState) {
-    //
+    console.log(dragState)
   }
 }

@@ -2,7 +2,7 @@
 import type { MainTrack } from '@/services/track/main-track'
 import { TrackPosition } from '@/types/drag'
 
-defineProps<{
+const props = defineProps<{
   track: MainTrack
 }>()
 
@@ -17,7 +17,13 @@ defineExpose<{
   <div class="main-track">
     <div class="track-options"></div>
     <div class="track-wrapper">
-      <div class="track"></div>
+      <div class="track">
+        <component
+          v-for="(item, i) in props.track.items"
+          :key="i"
+          :is="item.componentName"
+        ></component>
+      </div>
     </div>
   </div>
 </template>
@@ -43,7 +49,7 @@ defineExpose<{
       position: absolute;
       top: 0;
       left: 0;
-      width: 2000px;
+      width: 100%;
       height: 100%;
       background-color: #000;
     }

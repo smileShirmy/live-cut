@@ -71,6 +71,7 @@ export enum DragStateType {
 export interface AddToNewTrackDragState {
   type: DragStateType.ADD_TO_NEW_TRACK
   top: number
+  left: number
   insertIndex: number
 }
 

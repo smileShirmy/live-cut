@@ -4,12 +4,12 @@ import { TrackItemComponentName } from '@/types/track-item'
 export class VideoTrackItem {
   readonly componentName = TrackItemComponentName.VIDEO_TRACK_ITEM
 
-  #startTime = 0
+  #startFrame = 0
 
   #duration = 0
 
-  get startTime() {
-    return this.#startTime
+  get startFrame() {
+    return this.#startFrame
   }
 
   get duration() {
@@ -19,19 +19,19 @@ export class VideoTrackItem {
   constructor(
     item: VideoResource,
     options?: {
-      startTime?: number
+      startFrame?: number
     },
   ) {
     this.#duration = item.duration
 
     if (options) {
-      const { startTime = 0 } = options
-      this.#startTime = startTime
+      const { startFrame = 0 } = options
+      this.#startFrame = startFrame
     }
   }
 
-  setStartTime(time: number) {
-    this.#startTime = time
+  setStartFrame(time: number) {
+    this.#startFrame = time
   }
 
   static create(...args: ConstructorParameters<typeof VideoTrackItem>) {

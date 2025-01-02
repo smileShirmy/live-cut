@@ -13,6 +13,7 @@ import { emitter, Events } from '../mitt/emitter'
 import { cloneElement } from '../helpers/dom'
 import { useDragStore } from '@/stores/drag'
 import { useTrackStore } from '@/stores/track'
+import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
 
 export abstract class BaseDrag {
   protected readonly emitter = mitt<{
@@ -30,6 +31,7 @@ export abstract class BaseDrag {
   protected dropArea: DropArea = { top: 0, left: 0 }
   protected trackContentRect: DOMRect | Record<string, never> = {}
   protected dragging = true
+  protected mainTrackPosition!: MainTrackPosition
 
   constructor(options: BaseDragOptions) {
     this.startPointerEvent = options.startPointerEvent
@@ -38,6 +40,7 @@ export abstract class BaseDrag {
 
     emitter.emit(Events.INIT_TRACK_POSITIONS, (data: TrackPositionData[]) => {
       this.trackPositions = data
+      this.mainTrackPosition = this.#getMainTrackPosition()
     })
     emitter.emit(Events.INIT_DROP_AREA, (data: DropArea) => {
       this.dropArea = data
@@ -61,6 +64,10 @@ export abstract class BaseDrag {
     return clone
   }
 
+  #getMainTrackPosition() {
+    return this.trackPositions.find((v) => v.type === TrackPosition.Main) as MainTrackPosition
+  }
+
   protected updateCloneStyle(x: number, y: number) {
     this.cloneDragTarget.style.position = 'fixed'
     this.cloneDragTarget.style.pointerEvents = 'none'
@@ -74,14 +81,11 @@ export abstract class BaseDrag {
    */
   protected getTrackPosition(y: number) {
     let position: TrackPositionData | null = null
-    let main: MainTrackPosition | null = null
     const len = this.trackPositions.length
     for (let i = 0; i < len; i += 1) {
       const cur = this.trackPositions[i]
       const next = this.trackPositions[i + 1] ?? null
-      if (cur.type === TrackPosition.Main) {
-        main = cur
-      }
+
       if (i === 0 && y < cur.top) {
         position = cur
         break
@@ -93,10 +97,14 @@ export abstract class BaseDrag {
         }
       }
     }
-    return {
-      position: position as TrackPositionData,
-      main: main as MainTrackPosition,
-    }
+    return position as TrackPositionData
+  }
+
+  protected inContentLeftToFrame(inContentLeft: number) {
+    return Math.round(
+      (inContentLeft - TRACK_RESOURCE_OFFSET_LEFT + this.trackStore.scrollLeftTrackWidth) /
+        this.trackStore.frameWidth,
+    )
   }
 
   protected inContentTop(top: number) {

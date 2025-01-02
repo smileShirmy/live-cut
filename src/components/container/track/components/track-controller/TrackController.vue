@@ -2,25 +2,14 @@
 import TimelineRuler from './components/timeline-ruler/TimelineRuler.vue'
 import TimelineCursor from './components/timeline-cursor/TimelineCursor.vue'
 import TrackScrollbar from './components/scrollbar/TrackScrollbar.vue'
-import MainTrack from './components/track/MainTrack.vue'
-import AudioTrack from './components/track/AudioTrack.vue'
-import CommonTrack from './components/track/CommonTrack.vue'
-import { usePlayerStore } from '@/stores/player'
 import { useTrackStore } from '@/stores/track'
+import { usePlayerStore } from '@/stores/player'
 import { TRACK_RESOURCE_OFFSET_LEFT } from '@/config'
-import { TrackComponentName, type TrackComponent } from '@/types/track'
+import { type TrackComponent } from '@/types/track'
 import { computed, useTemplateRef, type ComputedRef, type CSSProperties } from 'vue'
 import { Events, emitter } from '@/services/mitt/emitter'
 import { DragStateType, TrackPosition, type TrackPositionData } from '@/types/drag'
 import { useDragStore } from '@/stores/drag'
-
-defineOptions({
-  components: {
-    [TrackComponentName.MAIN_TRACK]: MainTrack,
-    [TrackComponentName.COMMON_TRACK]: CommonTrack,
-    [TrackComponentName.AUDIO_TRACK]: AudioTrack,
-  },
-})
 
 const playerStore = usePlayerStore()
 const trackStore = useTrackStore()

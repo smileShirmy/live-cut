@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { AudioTrack } from '@/services/track/audio-track'
 import { TrackPosition } from '@/types/drag'
-import { type AudioTrack } from '@/types/track'
 
 defineProps<{
   track: AudioTrack

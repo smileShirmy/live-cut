@@ -5,7 +5,7 @@ import { ref } from 'vue'
 export const useDragStore = defineStore('drag', () => {
   const dragState = ref<DragState | null>(null)
 
-  function setDragState(state: DragState) {
+  function setDragState(state: DragState | null) {
     dragState.value = state
   }
 
