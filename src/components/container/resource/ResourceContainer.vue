@@ -32,7 +32,7 @@ const menu: MenuItem[] = [
 
 function selectMenu(componentName: ResourceComponentName) {
   currentComponent.value = componentName
-  appStore.toggleResourceVisible(true)
+  appStore.setResourceVisible(true)
 }
 </script>
 

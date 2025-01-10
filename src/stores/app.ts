@@ -5,18 +5,18 @@ export const useAppStore = defineStore('app', () => {
   const resourceVisible = ref(true)
   const attributeVisible = ref(true)
 
-  function toggleResourceVisible(visible: boolean) {
+  function setResourceVisible(visible: boolean) {
     resourceVisible.value = visible
   }
 
-  function toggleAttributeVisible(visible: boolean) {
+  function setAttributeVisible(visible: boolean) {
     attributeVisible.value = visible
   }
 
   return {
     resourceVisible,
     attributeVisible,
-    toggleResourceVisible,
-    toggleAttributeVisible,
+    setResourceVisible,
+    setAttributeVisible,
   }
 })

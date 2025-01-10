@@ -14,7 +14,7 @@ const resourceVisible = computed({
     return appStore.resourceVisible
   },
   set(isExpand: boolean) {
-    appStore.toggleResourceVisible(isExpand)
+    appStore.setResourceVisible(isExpand)
   },
 })
 
@@ -23,7 +23,7 @@ const attributeVisible = computed({
     return appStore.attributeVisible
   },
   set(isExpand: boolean) {
-    appStore.toggleAttributeVisible(isExpand)
+    appStore.setAttributeVisible(isExpand)
   },
 })
 </script>

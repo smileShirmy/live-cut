@@ -27,7 +27,7 @@ const currentComponent = ref('EmptyAttribute')
 
 function clickContainer() {
   if (!appStore.attributeVisible) {
-    appStore.toggleAttributeVisible(true)
+    appStore.setAttributeVisible(true)
   }
 }
 </script>
