@@ -7,7 +7,7 @@ const list = ref<VideoResource[]>([
   {
     type: ResourceType.VIDEO,
     name: 'video name',
-    duration: 10000,
+    duration: 2000,
   },
 ])
 </script>

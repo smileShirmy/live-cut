@@ -102,8 +102,12 @@ export const useTrackStore = defineStore('track', () => {
     return frameCount * frameWidth.value
   }
 
-  function frameToWidth(frame: number) {
+  function frameToPixel(frame: number) {
     return frame * frameWidth.value
+  }
+
+  function pixelToFrame(pixel: number) {
+    return Math.round(pixel / frameWidth.value)
   }
 
   return {
@@ -128,6 +132,7 @@ export const useTrackStore = defineStore('track', () => {
     setScrollLeft,
 
     durationToWidth,
-    frameToWidth,
+    frameToPixel,
+    pixelToFrame,
   }
 })
