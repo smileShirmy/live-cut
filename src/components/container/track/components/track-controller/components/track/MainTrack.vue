@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { MainTrack } from '@/services/track/main-track'
+import { useTrackStore } from '@/stores/track'
 import { TrackPosition } from '@/types/drag'
+import { computed, type ComputedRef, type CSSProperties } from 'vue'
 
 const props = defineProps<{
   track: MainTrack
@@ -11,17 +13,26 @@ defineExpose<{
 }>({
   position: TrackPosition.Main,
 })
+
+const trackStore = useTrackStore()
+
+const trackStyle: ComputedRef<CSSProperties> = computed(() => {
+  return {
+    left: `-${trackStore.scrollLeftTrackWidth}px`,
+  }
+})
 </script>
 
 <template>
   <div class="main-track">
     <div class="track-options"></div>
     <div class="track-wrapper">
-      <div class="track">
+      <div class="track" :style="trackStyle">
         <component
           v-for="(item, i) in props.track.items"
           :key="i"
           :is="item.componentName"
+          :trackItem="item"
         ></component>
       </div>
     </div>

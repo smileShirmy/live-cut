@@ -25,6 +25,12 @@ export interface VideoResource {
   duration: Millisecond
 }
 
+export interface AudioResource {
+  type: ResourceType.AUDIO
+  name: string
+  duration: Millisecond
+}
+
 export interface TextResource {
   type: ResourceType.TEXT
   name: string

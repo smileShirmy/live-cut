@@ -1,37 +1,12 @@
 import type { VideoResource } from '@/types/resource'
 import { TrackItemComponentName } from '@/types/track-item'
+import { BaseTrackItem } from './base-track-item'
 
-export class VideoTrackItem {
+export class VideoTrackItem extends BaseTrackItem {
   readonly componentName = TrackItemComponentName.VIDEO_TRACK_ITEM
 
-  #startFrame = 0
-
-  #duration = 0
-
-  get startFrame() {
-    return this.#startFrame
-  }
-
-  get duration() {
-    return this.#duration
-  }
-
-  constructor(
-    item: VideoResource,
-    options?: {
-      startFrame?: number
-    },
-  ) {
-    this.#duration = item.duration
-
-    if (options) {
-      const { startFrame = 0 } = options
-      this.#startFrame = startFrame
-    }
-  }
-
-  setStartFrame(time: number) {
-    this.#startFrame = time
+  constructor(item: VideoResource) {
+    super(item)
   }
 
   static create(...args: ConstructorParameters<typeof VideoTrackItem>) {

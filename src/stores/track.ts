@@ -102,6 +102,10 @@ export const useTrackStore = defineStore('track', () => {
     return frameCount * frameWidth.value
   }
 
+  function frameToWidth(frame: number) {
+    return frame * frameWidth.value
+  }
+
   return {
     scaleLevel,
     maxFrameCount,
@@ -124,5 +128,6 @@ export const useTrackStore = defineStore('track', () => {
     setScrollLeft,
 
     durationToWidth,
+    frameToWidth,
   }
 })
