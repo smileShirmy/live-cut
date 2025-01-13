@@ -1,7 +1,6 @@
 import { useTrackStore } from '@/stores/track'
-import type { TrackItem } from '@/types/track-item'
 
-export const useDragHandler = (trackItem: TrackItem, setFrame: (frame: number) => void) => {
+export const useDragHandler = (startPositionFrame: number, setFrame: (frame: number) => void) => {
   const trackStore = useTrackStore()
 
   let dragging = false
@@ -22,7 +21,7 @@ export const useDragHandler = (trackItem: TrackItem, setFrame: (frame: number) =
     dragging = true
     isClick = true
     startX = getClientX(event)
-    startPosition = trackStore.frameToPixel(trackItem.startFrame)
+    startPosition = trackStore.frameToPixel(startPositionFrame)
     newPosition = startPosition
   }
 

@@ -37,3 +37,8 @@ export const AUTO_SCROLL_SPEED = 50
  * 轨道间隙中间值 8 / 2 = 4
  */
 export const INTERVAL_TOP_OFFSET = 4
+
+/**
+ * 轨道拖拽条的宽度
+ */
+export const TRACK_ITEM_HANDLER_WIDTH = 10
