@@ -41,11 +41,12 @@ function onLeftHandlerDown(event: MouseEvent | TouchEvent) {
     (newFrame: number) => {
       const startFrame = props.trackItem.startFrame
       const max = props.trackItem.currentEndFrame.value
+      const minWidthFrame = getMinWidthFrame()
       let offset = newFrame - startFrame
       if (newFrame < startFrame) {
         offset = 0
-      } else if (newFrame >= max) {
-        offset = max - startFrame - getMinWidthFrame()
+      } else if (newFrame >= max - minWidthFrame) {
+        offset = max - startFrame - minWidthFrame
       }
       props.trackItem.setStartFrameOffset(offset)
     },
@@ -59,11 +60,12 @@ function onRightHandlerDown(event: MouseEvent | TouchEvent) {
     (newFrame: number) => {
       const endFrame = props.trackItem.endFrame
       const min = props.trackItem.currentStartFrame.value
+      const minWidthFrame = getMinWidthFrame()
       let offset = newFrame - endFrame
       if (newFrame > endFrame) {
         offset = 0
-      } else if (newFrame <= min) {
-        offset = min - endFrame + getMinWidthFrame()
+      } else if (newFrame <= min + minWidthFrame) {
+        offset = min - endFrame + minWidthFrame
       }
       props.trackItem.setEndFrameOffset(offset)
     },
