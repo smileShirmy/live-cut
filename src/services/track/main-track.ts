@@ -1,17 +1,20 @@
 import { TrackComponentName, type MainTrackItem } from '@/types/track'
-import { shallowReactive } from 'vue'
+import { BaseTrack } from './base-track'
+import { watch } from 'vue'
 
-export class MainTrack {
+export class MainTrack extends BaseTrack<MainTrackItem> {
   readonly componentName = TrackComponentName.MAIN_TRACK
 
-  private readonly _items = shallowReactive<MainTrackItem[]>([])
+  constructor() {
+    super()
 
-  get items() {
-    return this._items
+    this.setParentTrack()
   }
 
-  addItem(item: MainTrackItem) {
-    this._items.push(item)
+  setParentTrack() {
+    watch(this.items, (items) => items.forEach((v) => v.setParentTrack(this)), {
+      immediate: true,
+    })
   }
 
   static create(...args: ConstructorParameters<typeof MainTrack>) {

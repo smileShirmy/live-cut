@@ -2,6 +2,7 @@ import type { Millisecond } from '@/types/general'
 import type { BaseTrackItemOptions, TrackItemComponentName } from '@/types/track-item'
 import { computed, ref } from 'vue'
 import { durationToFrameCount } from '../helpers/time'
+import type { Track } from '@/types/track'
 
 export abstract class BaseTrackItem {
   abstract readonly componentName: TrackItemComponentName
@@ -13,6 +14,8 @@ export abstract class BaseTrackItem {
   private _startFrameOffset = ref<number>(0)
 
   private _endFrameOffset = ref<number>(0)
+
+  private _parentTrack: Track | null = null
 
   currentStartFrame = computed<number>(() => this.startFrame + this.startFrameOffset)
 
@@ -46,6 +49,10 @@ export abstract class BaseTrackItem {
     return this._endFrameOffset.value
   }
 
+  get parentTrack() {
+    return this._parentTrack
+  }
+
   constructor(options: BaseTrackItemOptions) {
     this._duration.value = options.duration
   }
@@ -64,5 +71,9 @@ export abstract class BaseTrackItem {
 
   setEndFrameOffset(offset: number) {
     this._endFrameOffset.value = offset
+  }
+
+  setParentTrack(track: Track) {
+    this._parentTrack = track
   }
 }

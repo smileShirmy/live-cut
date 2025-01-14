@@ -1,16 +1,10 @@
 import { TrackComponentName, type CommonTrackItem } from '@/types/track'
-import { shallowReactive } from 'vue'
+import { BaseTrack } from './base-track'
 
-export class CommonTrack {
+export class CommonTrack extends BaseTrack<CommonTrackItem> {
   readonly componentName = TrackComponentName.MAIN_TRACK
 
-  private readonly _items = shallowReactive<CommonTrackItem[]>([])
-
-  get items() {
-    return this._items
-  }
-
-  addItem(item: CommonTrackItem) {
-    this._items.push(item)
+  static create(...args: ConstructorParameters<typeof CommonTrack>) {
+    return new CommonTrack(...args)
   }
 }

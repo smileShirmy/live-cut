@@ -29,25 +29,58 @@ const trackItemHandlerStyle: ComputedRef<CSSProperties> = computed(() => {
 
 const showHandler = computed(() => isHover.value)
 
-function getMinWidthFrame() {
+const minWidthFrame = computed<number>(() => {
   const minFrameCount = trackStore.pixelToFrame(TRACK_ITEM_HANDLER_WIDTH)
-  const frameCount = props.trackItem.endFrame - props.trackItem.startFrame
+  const frameCount = props.trackItem.currentEndFrame.value - props.trackItem.currentStartFrame.value
   return frameCount < minFrameCount ? frameCount : minFrameCount
-}
+})
+
+const prevItemCurrentEndFrame = computed<number>(() => {
+  const parentTrack = props.trackItem.parentTrack
+  if (parentTrack) {
+    const frames = parentTrack.items.reduce((pre: number[], cur) => {
+      if (cur.currentEndFrame.value < props.trackItem.currentStartFrame.value) {
+        return pre.concat(cur.currentEndFrame.value)
+      }
+      return pre
+    }, [])
+    return Math.max(...frames)
+  }
+  return -Infinity
+})
+
+const nextItemCurrentStartFrame = computed<number>(() => {
+  const parentTrack = props.trackItem.parentTrack
+  if (parentTrack) {
+    const frames = parentTrack.items.reduce((pre: number[], cur) => {
+      if (props.trackItem.currentEndFrame.value < cur.currentStartFrame.value) {
+        return pre.concat(cur.currentStartFrame.value)
+      }
+      return pre
+    }, [])
+    return Math.min(...frames)
+  }
+  return Infinity
+})
 
 function onLeftHandlerDown(event: MouseEvent | TouchEvent) {
+  const prevEndFrame = prevItemCurrentEndFrame.value
+
   const { onHandlerDown } = useDragHandler(
     props.trackItem.currentStartFrame.value,
     (newFrame: number) => {
       const startFrame = props.trackItem.startFrame
       const max = props.trackItem.currentEndFrame.value
-      const minWidthFrame = getMinWidthFrame()
       let offset = newFrame - startFrame
-      if (newFrame < startFrame) {
+
+      if (newFrame <= prevEndFrame) {
+        offset = prevEndFrame - startFrame
+      } else if (newFrame < startFrame) {
         offset = 0
-      } else if (newFrame >= max - minWidthFrame) {
-        offset = max - startFrame - minWidthFrame
+      } else if (newFrame >= max - minWidthFrame.value) {
+        offset = max - startFrame - minWidthFrame.value
       }
+
       props.trackItem.setStartFrameOffset(offset)
     },
   )
@@ -55,18 +88,23 @@ function onLeftHandlerDown(event: MouseEvent | TouchEvent) {
 }
 
 function onRightHandlerDown(event: MouseEvent | TouchEvent) {
+  const nextStartFrame = nextItemCurrentStartFrame.value
+
   const { onHandlerDown } = useDragHandler(
     props.trackItem.currentEndFrame.value,
     (newFrame: number) => {
       const endFrame = props.trackItem.endFrame
       const min = props.trackItem.currentStartFrame.value
-      const minWidthFrame = getMinWidthFrame()
       let offset = newFrame - endFrame
-      if (newFrame > endFrame) {
+
+      if (newFrame >= nextStartFrame) {
+        offset = nextStartFrame - endFrame
+      } else if (newFrame > endFrame) {
         offset = 0
-      } else if (newFrame <= min + minWidthFrame) {
-        offset = min - endFrame + minWidthFrame
+      } else if (newFrame <= min + minWidthFrame.value) {
+        offset = min - endFrame + minWidthFrame.value
       }
+
       props.trackItem.setEndFrameOffset(offset)
     },
   )

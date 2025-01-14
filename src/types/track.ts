@@ -3,6 +3,7 @@ import CommonTrackComp from '@/components/container/track/components/track-contr
 import AudioTrackComp from '@/components/container/track/components/track-controller/components/track/AudioTrack.vue'
 import type { VideoTrackItem } from '@/services/track-item/video-track-item'
 import type { MainTrack } from '@/services/track/main-track'
+import type { AudioTrack } from '@/services/track/audio-track'
 
 export type MainTrackType = InstanceType<typeof MainTrackComp>
 export type CommonTrackType = InstanceType<typeof CommonTrackComp>
@@ -14,7 +15,7 @@ export enum TrackComponentName {
   AUDIO_TRACK = 'AudioTrack',
 }
 
-export type Track = MainTrack
+export type Track = MainTrack | AudioTrack
 
 export type TrackComponent = MainTrackType | CommonTrackType | AudioTrackType
 
