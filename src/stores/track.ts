@@ -21,6 +21,8 @@ export const useTrackStore = defineStore('track', () => {
 
   const trackList = ref<Track[]>([MainTrack.create()])
 
+  const selectedId = ref<string | null>(null)
+
   const minFrameWidth = computed(() => {
     if (timelineRulerWidth.value === 0) {
       return 0
@@ -97,6 +99,10 @@ export const useTrackStore = defineStore('track', () => {
     scrollLeft.value = left
   }
 
+  function setSelectedId(id: string) {
+    selectedId.value = id
+  }
+
   function durationToWidth(duration: Millisecond) {
     const frameCount = (duration / 1000) * FPS
     return frameCount * frameWidth.value
@@ -117,6 +123,7 @@ export const useTrackStore = defineStore('track', () => {
     scrollbarContainerWidth,
     scrollLeft,
     trackList,
+    selectedId,
 
     frameWidth,
     trackWidth,
@@ -130,6 +137,7 @@ export const useTrackStore = defineStore('track', () => {
     setTimelineRulerWidth,
     setScrollbarContainerWidth,
     setScrollLeft,
+    setSelectedId,
 
     durationToWidth,
     frameToPixel,

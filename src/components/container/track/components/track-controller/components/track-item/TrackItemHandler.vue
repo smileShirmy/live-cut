@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useTrackStore } from '@/stores/track'
 import type { TrackItem } from '@/types/track-item'
-import { computed, type ComputedRef, type CSSProperties } from 'vue'
+import { computed, ref, type ComputedRef, type CSSProperties } from 'vue'
 import { useHover } from './use-hover'
 import { useDragHandler } from './use-drag-handler'
 import { TRACK_ITEM_HANDLER_WIDTH } from '@/config'
@@ -18,6 +18,9 @@ const props = withDefaults(
 
 const trackStore = useTrackStore()
 
+const leftDragging = ref(false)
+const rightDragging = ref(false)
+
 const { isHover, onmouseenter, onmouseleave } = useHover()
 
 const trackItemHandlerStyle: ComputedRef<CSSProperties> = computed(() => {
@@ -27,7 +30,12 @@ const trackItemHandlerStyle: ComputedRef<CSSProperties> = computed(() => {
   }
 })
 
-const showHandler = computed(() => isHover.value)
+const isSelected = computed(
+  () =>
+    props.trackItem.id === trackStore.selectedId && !(leftDragging.value || rightDragging.value),
+)
+
+const showHandler = computed(() => isHover.value || isSelected.value)
 
 const minWidthFrame = computed<number>(() => {
   const minFrameCount = trackStore.pixelToFrame(TRACK_ITEM_HANDLER_WIDTH)
@@ -64,6 +72,8 @@ const nextItemCurrentStartFrame = computed<number>(() => {
 })
 
 function onLeftHandlerDown(event: MouseEvent | TouchEvent) {
+  trackStore.setSelectedId(props.trackItem.id)
+  leftDragging.value = true
   const prevEndFrame = prevItemCurrentEndFrame.value
 
   const { onHandlerDown } = useDragHandler(
@@ -83,11 +93,16 @@ function onLeftHandlerDown(event: MouseEvent | TouchEvent) {
 
       props.trackItem.setStartFrameOffset(offset)
     },
+    () => {
+      leftDragging.value = false
+    },
   )
   onHandlerDown(event)
 }
 
 function onRightHandlerDown(event: MouseEvent | TouchEvent) {
+  trackStore.setSelectedId(props.trackItem.id)
+  rightDragging.value = true
   const nextStartFrame = nextItemCurrentStartFrame.value
 
   const { onHandlerDown } = useDragHandler(
@@ -107,6 +122,9 @@ function onRightHandlerDown(event: MouseEvent | TouchEvent) {
 
       props.trackItem.setEndFrameOffset(offset)
     },
+    () => {
+      rightDragging.value = false
+    },
   )
   onHandlerDown(event)
 }
@@ -115,6 +133,7 @@ function onRightHandlerDown(event: MouseEvent | TouchEvent) {
 <template>
   <div
     class="track-item-handler"
+    :class="{ 'is-selected': isSelected }"
     :style="trackItemHandlerStyle"
     @mouseenter="onmouseenter"
     @mouseleave="onmouseleave"
@@ -125,12 +144,14 @@ function onRightHandlerDown(event: MouseEvent | TouchEvent) {
     <div
       v-show="showHandler"
       class="track-handler left-handler"
+      :class="{ 'is-dragging': leftDragging }"
       @mousedown="onLeftHandlerDown"
       @touchstart="onLeftHandlerDown"
     ></div>
     <div
       v-show="showHandler"
       class="track-handler right-handler"
+      :class="{ 'is-dragging': rightDragging }"
       @mousedown="onRightHandlerDown"
       @touchstart="onRightHandlerDown"
     ></div>
@@ -145,6 +166,18 @@ function onRightHandlerDown(event: MouseEvent | TouchEvent) {
   overflow: hidden;
   border-radius: 4px;
   background-color: var(--app-bg-color-lighter);
+
+  &.is-selected::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 4px;
+    box-sizing: border-box;
+    border: 1px solid var(--app-color-white);
+  }
 }
 
 .track-handler {
@@ -193,6 +226,10 @@ function onRightHandlerDown(event: MouseEvent | TouchEvent) {
     border-radius: 0 4px 4px 0;
     border-width: 1px 1px 1px 0;
     border-style: solid;
+  }
+
+  &.is-dragging {
+    border-color: var(--app-color-white);
   }
 }
 </style>

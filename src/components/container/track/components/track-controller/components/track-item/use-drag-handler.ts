@@ -1,6 +1,10 @@
 import { useTrackStore } from '@/stores/track'
 
-export const useDragHandler = (startPositionFrame: number, setFrame: (frame: number) => void) => {
+export const useDragHandler = (
+  startPositionFrame: number,
+  setFrame: (frame: number) => void,
+  dragEnd: () => void,
+) => {
   const trackStore = useTrackStore()
 
   let dragging = false
@@ -49,6 +53,7 @@ export const useDragHandler = (startPositionFrame: number, setFrame: (frame: num
       if (!isClick) {
         setPosition(newPosition)
       }
+      dragEnd()
     }, 0)
     window.removeEventListener('mousemove', onDragging)
     window.removeEventListener('touchmove', onDragging)

@@ -3,9 +3,12 @@ import type { BaseTrackItemOptions, TrackItemComponentName } from '@/types/track
 import { computed, ref } from 'vue'
 import { durationToFrameCount } from '../helpers/time'
 import type { Track } from '@/types/track'
+import { uuid } from '../helpers/general'
 
 export abstract class BaseTrackItem {
   abstract readonly componentName: TrackItemComponentName
+
+  readonly id = uuid()
 
   private _startFrame = ref<number>(0)
 
