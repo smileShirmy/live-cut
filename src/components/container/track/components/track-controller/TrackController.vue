@@ -10,6 +10,7 @@ import { computed, useTemplateRef, type ComputedRef, type CSSProperties } from '
 import { Events, emitter } from '@/services/mitt/emitter'
 import { DragStateType, TrackPosition, type TrackPositionData } from '@/types/drag'
 import { useDragStore } from '@/stores/drag'
+import { trackManage } from '@/services/track-manage/track-manage'
 
 const playerStore = usePlayerStore()
 const trackStore = useTrackStore()
@@ -144,7 +145,7 @@ emitter.on(Events.INIT_TRACK_CONTENT_RECT, (set) => {
     <div class="track-content" ref="trackContentRef" @click="onClick">
       <div class="track-list-container" ref="trackListContainerRef">
         <component
-          v-for="(track, i) in trackStore.trackList"
+          v-for="(track, i) in trackManage.trackList"
           ref="trackRefs"
           :key="i"
           class="track-container"

@@ -3,8 +3,6 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { usePlayerStore } from './player'
 import type { Millisecond } from '@/types/general'
-import { type Track } from '@/types/track'
-import { MainTrack } from '@/services/track/main-track'
 
 export const useTrackStore = defineStore('track', () => {
   const playerStore = usePlayerStore()
@@ -18,8 +16,6 @@ export const useTrackStore = defineStore('track', () => {
   const timelineRulerWidth = ref(0)
   const scrollbarContainerWidth = ref(0)
   const scrollLeft = ref(0)
-
-  const trackList = ref<Track[]>([MainTrack.create()])
 
   const selectedId = ref<string | null>(null)
 
@@ -122,7 +118,6 @@ export const useTrackStore = defineStore('track', () => {
     timelineRulerWidth,
     scrollbarContainerWidth,
     scrollLeft,
-    trackList,
     selectedId,
 
     frameWidth,

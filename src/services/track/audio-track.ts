@@ -4,7 +4,7 @@ import { BaseTrack } from './base-track'
 import { watch } from 'vue'
 
 export class AudioTrack extends BaseTrack<AudioTrackItem> {
-  readonly componentName = TrackComponentName.MAIN_TRACK
+  readonly componentName = TrackComponentName.AUDIO_TRACK
 
   constructor() {
     super()

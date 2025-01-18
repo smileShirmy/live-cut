@@ -13,7 +13,8 @@ import { BaseDrag } from './base-drag'
 import { INTERVAL_TOP_OFFSET } from '@/config'
 import { warn } from 'vue'
 import type { VideoTrackItem } from '../track-item/video-track-item'
-
+import { trackManage } from '../track-manage/track-manage'
+import { isAllowCommonItemTrack } from '../helpers/track'
 export class DragCommon extends BaseDrag {
   #trackItem: VideoTrackItem
 
@@ -132,7 +133,10 @@ export class DragCommon extends BaseDrag {
   #addToCurrentTrack(dragState: AddToCurrentTrackDragState) {
     const startFrame = this.inContentLeftToFrame(dragState.left)
     this.#trackItem.setStartFrame(startFrame)
-    this.trackStore.trackList[dragState.trackIndex].addItem(this.#trackItem)
+    const track = trackManage.trackList[dragState.trackIndex]
+    if (isAllowCommonItemTrack(track)) {
+      track.addItem(this.#trackItem)
+    }
   }
 
   #addToNewTrack(dragState: AddToNewTrackDragState) {

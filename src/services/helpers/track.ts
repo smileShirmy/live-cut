@@ -1,16 +1,9 @@
-import {
-  TrackComponentName,
-  type AudioTrackType,
-  type CommonTrackType,
-  type MainTrackType,
-  type TrackComponent,
-} from '@/types/track'
+import { TrackComponentName, type Track } from '@/types/track'
+import type { CommonTrack } from '../track/common-track'
+import type { MainTrack } from '../track/main-track'
 
-export const isMainTrackComp = (comp: TrackComponent): comp is MainTrackType =>
-  comp.track.componentName === TrackComponentName.MAIN_TRACK
-
-export const isCommonTrackComp = (comp: TrackComponent): comp is CommonTrackType =>
-  comp.track.componentName === TrackComponentName.COMMON_TRACK
-
-export const isAudioTrackComp = (comp: TrackComponent): comp is AudioTrackType =>
-  comp.track.componentName === TrackComponentName.AUDIO_TRACK
+export const isAllowCommonItemTrack = (track: Track): track is CommonTrack | MainTrack => {
+  return [TrackComponentName.MAIN_TRACK, TrackComponentName.COMMON_TRACK].some(
+    (v) => v === track.componentName,
+  )
+}
